@@ -127,7 +127,7 @@ export function Sidebar({ currentTab, setTab, mobileOpen, onCloseMobile }) {
             </div>
             <div className="leading-tight min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-[14.5px] font-bold text-white tracking-tight">LIKA</span>
+                <span className="text-[14.5px] font-bold text-white tracking-tight">Lika</span>
                 <span className="px-1.5 py-0.2 text-[9.5px] font-semibold uppercase tracking-wider bg-brand-500/20 text-brand-300 border border-brand-400/25 rounded">
                   CRM
                 </span>
