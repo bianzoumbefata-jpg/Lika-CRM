@@ -1,0 +1,202 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   DESIGN SYSTEM : FINTECH & COMPTABILITÉ OHADA (IBM Plex Sans + JetBrains Mono)
+   ========================================================================== */
+:root {
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Fintech Emerald & Institutional Slate (Banque / OHADA Swiss Style) */
+  --brand-50: 236 253 245;
+  --brand-100: 209 250 229;
+  --brand-200: 167 243 208;
+  --brand-300: 110 231 183;
+  --brand-400: 52 211 153;
+  --brand-500: 16 185 129;
+  --brand-600: 5 150 105;
+  --brand-700: 4 120 87;
+  --brand-800: 6 95 70;
+  --brand-900: 6 78 59;
+  --brand-950: 2 44 34;
+
+  --surface-bg: #f4f7f6;
+  --sidebar-bg: #07120f;
+  --card-radius: 0.5rem;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01', 'tnum';
+    background-color: var(--surface-bg);
+    color: #0f172a;
+    letter-spacing: -0.008em;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  table td,
+  table th,
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .pro-card {
+    background: #ffffff;
+    border-radius: var(--card-radius);
+    border: 1px solid rgba(203, 213, 225, 0.75);
+    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03), 0 1px 3px 0 rgba(15, 23, 42, 0.02);
+    transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .pro-card-hover {
+    @apply hover:border-brand-500/50 hover:shadow-[0_6px_18px_-3px_rgba(5,150,105,0.08),0_2px_6px_-1px_rgba(15,23,42,0.04)] hover:-translate-y-[1px];
+  }
+  .pro-table-header {
+    @apply bg-slate-50/95 text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 border-b border-slate-200/90;
+  }
+  .pro-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-3.5 py-2 text-[13px] font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-md shadow-2xs transition-all;
+  }
+  .pro-btn-brand {
+    @apply inline-flex items-center justify-center gap-2 px-3.5 py-2 text-[13px] font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-md shadow-xs shadow-brand-600/15 transition-all;
+  }
+  .pro-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-[13px] font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-md shadow-2xs transition-all;
+  }
+  .pro-sidebar-surface {
+    background-color: var(--sidebar-bg);
+  }
+}
+
+/* Custom modern scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+  background-clip: content-box;
+}
+
+/* Dark sidebar scrollbar */
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  background-clip: content-box;
+}
+
+/* ==========================================================================
+   FEUILLE A4 (Devis / Factures) - 210 x 297 mm
+   ========================================================================== */
+.a4-sheet {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 14mm 14mm 12mm 14mm;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 10.5px;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+}
+
+.a4-sheet table {
+  border-collapse: collapse;
+}
+
+/* Print utilities for clean quote/invoice printing */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    width: 210mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body > #root {
+    display: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-shell {
+    position: static !important;
+    inset: auto !important;
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    display: block !important;
+    backdrop-filter: none !important;
+  }
+
+  .a4-sheet {
+    width: 210mm !important;
+    min-height: 296mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    page-break-after: auto;
+  }
+
+  .avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-page {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}

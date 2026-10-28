@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Production build
+dist/
+
+# Sensitive local & cloud credentials
+.env
+.env.*
+data/cloud_config.json
+*.tmp
+
+# Logs & OS files
+*.log
+.DS_Store
+Thumbs.db
