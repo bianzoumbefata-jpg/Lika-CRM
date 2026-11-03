@@ -401,10 +401,19 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`OpenFlex CRM Sénégal (FCFA) démarré sur http://localhost:${PORT}`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Lika CRM Sénégal (FCFA) démarré sur http://localhost:${PORT}`);
   const lan = getLanUrls(PORT);
   if (lan.length > 0) {
     console.log(`Accès réseau Wi-Fi / LAN : ${lan.join(' | ')}`);
+  }
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`[INFO] Lika CRM est déjà en cours d'exécution sur le port ${PORT}.`);
+    console.log(`Ouvrez http://localhost:${PORT} dans votre navigateur.`);
+  } else {
+    console.error('Erreur serveur:', err);
   }
 });
