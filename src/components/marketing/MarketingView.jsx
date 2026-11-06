@@ -471,7 +471,7 @@ export function MarketingView({ onNavigate }) {
 
         <div className="hidden lg:flex items-center gap-2 pr-2 text-[11.5px] text-slate-500">
           <span>Passerelle active :</span>
-          <span className="font-semibold text-emerald-700">
+          <span className="font-semibold text-brand-700">
             Lead → Prospect → Opportunité → Devis FCFA
           </span>
         </div>
@@ -512,7 +512,7 @@ export function MarketingView({ onNavigate }) {
               <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-slate-500 block">
                 Potentiel commercial estimé
               </span>
-              <div className="text-[20px] font-bold text-emerald-700 font-mono mt-1">
+              <div className="text-[20px] font-bold text-brand-700 font-mono mt-1">
                 {fmt(totalLeadsPotential)}
               </div>
               <span className="text-[11px] text-slate-400 mt-0.5 block">
@@ -527,7 +527,7 @@ export function MarketingView({ onNavigate }) {
               <div className="text-[22px] font-bold text-slate-900 font-mono mt-1">
                 {leadConversionRate}%
               </div>
-              <span className="text-[11px] text-emerald-600 font-medium mt-0.5 block">
+              <span className="text-[11px] text-brand-600 font-medium mt-0.5 block">
                 Qualifiés ou convertis en Prospect
               </span>
             </div>
@@ -667,7 +667,7 @@ export function MarketingView({ onNavigate }) {
                                 <div
                                   className={`h-full rounded-full ${
                                     lead.score >= 75
-                                      ? 'bg-emerald-500'
+                                      ? 'bg-brand-500'
                                       : lead.score >= 50
                                       ? 'bg-amber-500'
                                       : 'bg-slate-400'
@@ -716,7 +716,7 @@ export function MarketingView({ onNavigate }) {
                             {/* WhatsApp Direct */}
                             <button
                               onClick={() => handleWhatsAppLead(lead)}
-                              className="px-2 py-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-md border border-emerald-200/80 transition flex items-center gap-1"
+                              className="px-2 py-1 text-[11px] font-semibold text-brand-800 bg-brand-50 hover:bg-brand-100 rounded-md border border-brand-200/80 transition flex items-center gap-1"
                               title="Contacter ce lead sur WhatsApp"
                             >
                               <MessageCircle className="w-3 h-3 text-[#25D366]" />
@@ -818,10 +818,10 @@ export function MarketingView({ onNavigate }) {
               <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-slate-500 block">
                 Taux d’ouverture moyen
               </span>
-              <div className="text-[22px] font-bold text-emerald-600 font-mono mt-1">
+              <div className="text-[22px] font-bold text-brand-600 font-mono mt-1">
                 {avgOpenRate}%
               </div>
-              <span className="text-[11px] text-emerald-700 font-medium mt-0.5 block">
+              <span className="text-[11px] text-brand-700 font-medium mt-0.5 block">
                 Performance supérieure à la moyenne B2B
               </span>
             </div>
@@ -911,7 +911,7 @@ export function MarketingView({ onNavigate }) {
 
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <div className="inline-flex items-center gap-2 font-mono text-[11.5px]">
-                          <span className="font-bold text-emerald-700">{cmp.openRate}% ouv.</span>
+                          <span className="font-bold text-brand-700">{cmp.openRate}% ouv.</span>
                           <span className="text-slate-300">•</span>
                           <span className="font-semibold text-brand-700">{cmp.clickRate}% clics</span>
                         </div>
@@ -1089,7 +1089,7 @@ export function MarketingView({ onNavigate }) {
               <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
                 <div className="text-[12px] text-slate-600">
                   Audience sélectionnée :{' '}
-                  <span className="font-mono font-bold text-emerald-700">
+                  <span className="font-mono font-bold text-brand-700">
                     {studioRecipients.length} contact(s) qualifié(s)
                   </span>
                 </div>
@@ -1123,7 +1123,7 @@ export function MarketingView({ onNavigate }) {
             <div className="pro-card overflow-hidden">
               <div className="px-4 py-3 bg-slate-900 text-white flex items-center justify-between">
                 <span className="text-[12px] font-semibold flex items-center gap-2">
-                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                  <Eye className="w-3.5 h-3.5 text-brand-400" />
                   Aperçu E-mail Client en direct
                 </span>
                 <span className="text-[10.5px] font-mono text-slate-400">
@@ -1139,7 +1139,7 @@ export function MarketingView({ onNavigate }) {
                       <div className="text-[14px] font-bold tracking-tight">
                         {company.name || 'OpenFlex Sénégal'}
                       </div>
-                      <div className="text-[10.5px] text-emerald-200">
+                      <div className="text-[10.5px] text-brand-200">
                         Solutions ERP, CRM & Facturation OHADA • Dakar
                       </div>
                     </div>
@@ -1164,7 +1164,7 @@ export function MarketingView({ onNavigate }) {
                     </div>
 
                     <div className="pt-3">
-                      <span className="inline-block px-4 py-2 rounded-md bg-emerald-700 text-white text-[12px] font-semibold">
+                      <span className="inline-block px-4 py-2 rounded-md bg-brand-700 text-white text-[12px] font-semibold">
                         Demander un Devis / Démonstration →
                       </span>
                     </div>
@@ -1187,7 +1187,7 @@ export function MarketingView({ onNavigate }) {
             <div className="pro-card p-4">
               <div className="text-[12px] font-bold text-slate-900 mb-2 flex items-center justify-between">
                 <span>Destinataires inclus dans le segment ({studioRecipients.length})</span>
-                <span className="text-[10.5px] font-mono text-emerald-700">Prêts à l’envoi</span>
+                <span className="text-[10.5px] font-mono text-brand-700">Prêts à l’envoi</span>
               </div>
               <div className="max-h-48 overflow-y-auto divide-y divide-slate-100 text-[11.5px]">
                 {studioRecipients.map((r) => (

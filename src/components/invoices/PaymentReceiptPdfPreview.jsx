@@ -16,6 +16,8 @@ import {
   DocHeader,
   DocParties,
   DocFooter,
+  DocSectionTitle,
+  DOC_ACCENTS,
 } from '../common/DocumentSheet';
 
 const PAYMENT_METHOD_LABELS = {
@@ -75,7 +77,7 @@ export function PaymentReceiptPdfPreview({
   const paymentReference = selectedPayment?.reference || `TX-${liveInvoice.id}`;
 
   const receiptNumber = String(liveInvoice.id || '0001').replace(/^(FAC|AVO)-/, 'REC-');
-  const accent = '#047857'; // Emerald OHADA
+  const accent = DOC_ACCENTS.recu;
   const fmt = (v) => formatCurrency(v, currencySymbol, currencyPosition);
   const amountInWords = `${numberToFrenchWords(receiptAmount)} Francs CFA`;
 
@@ -205,11 +207,12 @@ export function PaymentReceiptPdfPreview({
         company={company}
         customer={customer}
         fallbackName={liveInvoice.customerName}
-        recipientLabel="Reçu de (Client payeur)"
+        recipientLabel="Reçu de — client payeur"
+        accent={accent}
       />
 
       {/* Encadré Principal : Attestation de Quittance & Montant en chiffres / lettres */}
-      <div className="mt-5 border-2 border-emerald-700/80 rounded-xs overflow-hidden">
+      <div className="mt-4 border border-emerald-200 rounded-xs overflow-hidden">
         <div
           className="px-4 py-2 text-white flex items-center justify-between"
           style={{ backgroundColor: accent }}
@@ -233,7 +236,7 @@ export function PaymentReceiptPdfPreview({
                 <span className="font-semibold text-slate-900">{paymentMethodLabel}</span>
               </div>
             </div>
-            <div className="px-4 py-2 rounded-xs bg-white border-2 border-emerald-700 font-mono text-[18px] font-extrabold text-emerald-800 shadow-2xs">
+            <div className="px-4 py-2 rounded-xs bg-white border border-emerald-200 font-mono text-[20px] font-extrabold text-emerald-800">
               {fmt(receiptAmount)}
             </div>
           </div>
@@ -270,12 +273,11 @@ export function PaymentReceiptPdfPreview({
 
       {/* Détail des prestations couvertes par la facture */}
       <div className="mt-4">
-        <div className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-          Objet de la facturation ({liveInvoice.id})
-        </div>
-        <table className="w-full text-[9.5px] border border-slate-300">
+        <DocSectionTitle accent={accent}>Objet de la facturation ({liveInvoice.id})</DocSectionTitle>
+        <div className="rounded-xs border border-slate-200 overflow-hidden">
+        <table className="w-full text-[9.5px]">
           <thead>
-            <tr className="bg-slate-100 border-b border-slate-300 text-[8.5px] uppercase text-slate-600">
+            <tr className="bg-slate-100 border-b border-slate-200 text-[7.5px] uppercase tracking-[0.12em] text-slate-500">
               <th className="py-1.5 px-2.5 text-left font-semibold">Désignation des prestations / articles</th>
               <th className="py-1.5 px-2 text-center font-semibold w-[14%]">Quantité</th>
               <th className="py-1.5 px-2.5 text-right font-semibold w-[22%]">Montant TTC</th>
@@ -297,6 +299,7 @@ export function PaymentReceiptPdfPreview({
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Situation Financière de la Facture & Cachet Numérique */}
@@ -357,7 +360,7 @@ export function PaymentReceiptPdfPreview({
         </div>
       </div>
 
-      <DocFooter company={company} />
+      <DocFooter company={company} accent={accent} />
     </DocumentShell>
   );
 }

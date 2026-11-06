@@ -142,9 +142,9 @@ export function ProductsView() {
           {/* Quick stock movement button */}
           <button
             onClick={() => handleOpenMovementModal()}
-            className="px-3.5 py-2 text-xs font-bold text-slate-800 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 rounded-xl transition flex items-center gap-1.5 shadow-2xs"
+            className="px-3.5 py-2 text-xs font-bold text-slate-800 bg-brand-50 border border-brand-300 hover:bg-brand-100 rounded-xl transition flex items-center gap-1.5 shadow-2xs"
           >
-            <RotateCw className="w-4 h-4 text-emerald-600" />
+            <RotateCw className="w-4 h-4 text-brand-600" />
             <span>Mouvement de Stock</span>
           </button>
 
@@ -177,10 +177,10 @@ export function ProductsView() {
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
             Valeur Marchande (Vente)
           </span>
-          <div className="text-xl font-black text-emerald-600">
+          <div className="text-xl font-black text-brand-600">
             {formatCurrency(totalSaleValuation, currencySymbol, currencyPosition)}
           </div>
-          <span className="text-[10px] text-emerald-600 font-semibold mt-1 block">
+          <span className="text-[10px] text-brand-600 font-semibold mt-1 block">
             Marge brute potentielle : +{formatCurrency(totalSaleValuation - totalCostValuation, currencySymbol, currencyPosition)}
           </span>
         </div>
@@ -268,7 +268,7 @@ export function ProductsView() {
                 <button
                   onClick={() => setSelectedStockFilter('dispo')}
                   className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap ${
-                    selectedStockFilter === 'dispo' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+                    selectedStockFilter === 'dispo' ? 'bg-brand-600 text-white' : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
                   En stock normal
@@ -368,7 +368,7 @@ export function ProductsView() {
                                   ? 'bg-rose-50 text-rose-600'
                                   : isLow
                                   ? 'bg-amber-50 text-amber-600'
-                                  : 'bg-emerald-50 text-emerald-600'
+                                  : 'bg-brand-50 text-brand-600'
                               }`}
                             >
                               <Package className="w-4 h-4" />
@@ -417,7 +417,7 @@ export function ProductsView() {
                                     ? 'bg-rose-100 text-rose-800 border border-rose-200'
                                     : isLow
                                     ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                                    : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                    : 'bg-brand-100 text-brand-800 border border-brand-200'
                                 }`}
                               >
                                 {stock} {p.unit}
@@ -436,7 +436,7 @@ export function ProductsView() {
                             {isProduct && (
                               <button
                                 onClick={() => handleOpenMovementModal(p)}
-                                className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
+                                className="p-1.5 text-brand-600 hover:bg-brand-50 rounded-lg transition"
                                 title="Enregistrer un mouvement de stock"
                               >
                                 <RotateCw className="w-4 h-4" />
@@ -505,7 +505,7 @@ export function ProductsView() {
                           ? 'bg-rose-100 text-rose-800'
                           : isLow
                           ? 'bg-amber-100 text-amber-800'
-                          : 'bg-emerald-100 text-emerald-800'
+                          : 'bg-brand-100 text-brand-800'
                       }`}
                     >
                       {isOut ? 'Rupture' : isLow ? 'Faible' : 'En stock'}
@@ -541,7 +541,7 @@ export function ProductsView() {
                   <div className="pt-2 flex items-center justify-between border-t border-slate-100">
                     <button
                       onClick={() => handleOpenMovementModal(p)}
-                      className="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition flex items-center gap-1.5 shadow-2xs"
+                      className="px-3 py-1.5 text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-xl transition flex items-center gap-1.5 shadow-2xs"
                     >
                       <RotateCw className="w-3.5 h-3.5" />
                       <span>Ajuster / Mouvement</span>
@@ -570,7 +570,7 @@ export function ProductsView() {
             <h3 className="text-sm font-bold text-slate-900">Journal des Entrées & Sorties de Stock</h3>
             <button
               onClick={() => handleOpenMovementModal()}
-              className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition flex items-center gap-1.5"
+              className="px-3 py-1.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Nouveau Mouvement</span>
@@ -612,7 +612,7 @@ export function ProductsView() {
                         <span
                           className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                             mvt.type === 'entree'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              ? 'bg-brand-50 text-brand-700 border border-brand-200'
                               : mvt.type === 'sortie'
                               ? 'bg-blue-50 text-blue-700 border border-blue-200'
                               : mvt.type === 'ajustement'
@@ -625,7 +625,7 @@ export function ProductsView() {
                       </td>
 
                       <td className="py-3.5 px-4 text-center font-black text-sm">
-                        <span className={mvt.type === 'entree' ? 'text-emerald-600' : 'text-slate-800'}>
+                        <span className={mvt.type === 'entree' ? 'text-brand-600' : 'text-slate-800'}>
                           {mvt.type === 'entree' ? `+${mvt.quantity}` : mvt.type === 'sortie' ? `-${mvt.quantity}` : mvt.quantity}
                         </span>
                       </td>

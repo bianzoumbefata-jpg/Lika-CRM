@@ -65,7 +65,7 @@ export function CustomerDetailModal({
         {/* Top Header Card */}
         <div className="p-6 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shrink-0">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shrink-0">
               {customer.name.slice(0, 2).toUpperCase()}
             </div>
             <div>
@@ -74,7 +74,7 @@ export function CustomerDetailModal({
                 <span
                   className={`px-2 py-0.5 text-xs font-bold rounded-full ${
                     customer.type === 'client'
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                      ? 'bg-brand-500/20 text-brand-300 border border-brand-500/30'
                       : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                   }`}
                 >
@@ -94,7 +94,7 @@ export function CustomerDetailModal({
                 {customer.mobile && (
                   <a
                     href={`tel:${customer.mobile}`}
-                    className="flex items-center gap-1 text-emerald-400 font-semibold hover:underline"
+                    className="flex items-center gap-1 text-brand-400 font-semibold hover:underline"
                   >
                     <Smartphone className="w-3.5 h-3.5" />
                     Wave / OM : {customer.mobile}
@@ -117,7 +117,7 @@ export function CustomerDetailModal({
             {customer.type === 'prospect' && (
               <button
                 onClick={() => convertProspectToClient(customer.id)}
-                className="px-3.5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl transition flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-2 text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 rounded-xl transition flex items-center gap-1.5 shadow-sm"
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>Convertir en Client</span>
@@ -151,7 +151,7 @@ export function CustomerDetailModal({
           </div>
           <div>
             <div className="text-[11px] font-bold text-slate-400 uppercase">Total Règlements Reçus</div>
-            <div className="text-sm font-black text-emerald-600 mt-0.5">
+            <div className="text-sm font-black text-brand-600 mt-0.5">
               {formatCurrency(totalPaid, currencySymbol, currencyPosition)}
             </div>
           </div>

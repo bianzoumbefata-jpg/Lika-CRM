@@ -32,7 +32,7 @@ export function PaymentModal({ isOpen, onClose, invoice }) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/70">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
               <CreditCard className="w-5 h-5" />
             </div>
             <div>
@@ -60,7 +60,7 @@ export function PaymentModal({ isOpen, onClose, invoice }) {
           </div>
           <div>
             <span className="text-slate-400 block text-[10px] font-semibold">Déjà réglé</span>
-            <span className="font-bold text-emerald-600">
+            <span className="font-bold text-brand-600">
               {formatCurrency(invoice.paidAmount, currencySymbol, currencyPosition)}
             </span>
           </div>
@@ -87,7 +87,7 @@ export function PaymentModal({ isOpen, onClose, invoice }) {
                 required
                 value={paymentData.amount}
                 onChange={(e) => setPaymentData({ ...paymentData, amount: Number(e.target.value) })}
-                className="w-full text-lg font-black border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                className="w-full text-lg font-black border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none"
               />
               <button
                 type="button"
@@ -166,7 +166,7 @@ export function PaymentModal({ isOpen, onClose, invoice }) {
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition flex items-center gap-1.5"
+              className="px-5 py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-xs transition flex items-center gap-1.5"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Valider l'Encaissement</span>

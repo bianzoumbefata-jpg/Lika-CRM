@@ -16,6 +16,10 @@ import { AgendaView } from './components/agenda/AgendaView';
 import { InterventionsView } from './components/interventions/InterventionsView';
 import { ContractsView } from './components/contracts/ContractsView';
 import { SettingsView } from './components/settings/SettingsView';
+import { InboxView } from './components/inbox/InboxView';
+import { MarketingView } from './components/marketing/MarketingView';
+import { WorkflowsView } from './components/workflows/WorkflowsView';
+import { AiAssistantDrawer } from './components/ai/AiAssistantDrawer';
 
 // Modals triggered globally
 import { QuoteEditorModal } from './components/quotes/QuoteEditorModal';
@@ -33,6 +37,19 @@ function CrmAppContent() {
   const [currentTab, setTab] = useState('dashboard');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [theme, setTheme] = useState(() =>
+    document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+  );
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    try {
+      localStorage.setItem('lika_theme', theme);
+    } catch (e) {
+      /* stockage indisponible : le thème reste valable pour la session */
+    }
+  }, [theme]);
 
   // Global Quick Action Modals
   const [quoteEditorOpen, setQuoteEditorOpen] = useState(false);
@@ -146,13 +163,14 @@ function CrmAppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] flex">
       {/* Sidebar (pleine hauteur) */}
       <Sidebar
         currentTab={currentTab}
         setTab={setTab}
         mobileOpen={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}
+        onOpenAi={() => setAiOpen(true)}
       />
 
       <div className="flex-1 min-w-0 flex flex-col">
@@ -163,6 +181,9 @@ function CrmAppContent() {
           onOpenSearch={() => setSearchModalOpen(true)}
           onOpenQuickAction={handleQuickAction}
           onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onOpenAi={() => setAiOpen(true)}
+          theme={theme}
+          onToggleTheme={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
         />
 
         {/* Main Content Area */}
@@ -198,8 +219,27 @@ function CrmAppContent() {
           {currentTab === 'contracts' && <ContractsView />}
 
           {currentTab === 'settings' && <SettingsView />}
+
+          {currentTab === 'inbox' && (
+            <InboxView
+              onNavigate={(tab) => setTab(tab)}
+              onCreateQuoteForCustomer={handleCreateQuoteForCustomer}
+              onOpenAiAssistant={() => setAiOpen(true)}
+            />
+          )}
+
+          {currentTab === 'marketing' && <MarketingView onNavigate={(tab) => setTab(tab)} />}
+
+          {currentTab === 'workflows' && <WorkflowsView onNavigate={(tab) => setTab(tab)} />}
         </main>
       </div>
+
+      {/* Assistant IA (panneau latéral) */}
+      <AiAssistantDrawer
+        isOpen={aiOpen}
+        onClose={() => setAiOpen(false)}
+        onNavigate={(tab) => setTab(tab)}
+      />
 
       {/* Global Notification Toast */}
       <NotificationToast />

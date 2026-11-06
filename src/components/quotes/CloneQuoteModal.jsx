@@ -352,7 +352,7 @@ export function CloneQuoteModal({
                           className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded ${
                             c.type === 'prospect'
                               ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-brand-50 text-brand-700 border border-brand-200'
                           }`}
                         >
                           {c.type === 'prospect' ? 'Prospect' : 'Client'}
@@ -366,7 +366,7 @@ export function CloneQuoteModal({
                         {c.city || 'Dakar'}
                       </span>
                       {c.defaultDiscount > 0 && (
-                        <span className="text-emerald-700 font-semibold">
+                        <span className="text-brand-700 font-semibold">
                           Remise {c.defaultDiscount}%
                         </span>
                       )}
@@ -425,7 +425,7 @@ export function CloneQuoteModal({
                 />
                 <span className="text-xs text-slate-700">
                   Appliquer la remise habituelle de <strong>{selectedCustomer.name}</strong> (
-                  <strong className="text-emerald-700">{selectedCustomer.defaultDiscount}%</strong>) sur les lignes
+                  <strong className="text-brand-700">{selectedCustomer.defaultDiscount}%</strong>) sur les lignes
                 </span>
               </label>
             )}

@@ -12,6 +12,8 @@ import {
   DocHeader,
   DocParties,
   DocFooter,
+  DocSectionTitle,
+  DOC_ACCENTS,
 } from '../common/DocumentSheet';
 
 export function DeliveryNotePdfPreview({
@@ -46,7 +48,7 @@ export function DeliveryNotePdfPreview({
   const primaryContact =
     customer?.contacts?.find((c) => c.isPrimary) || customer?.contacts?.[0];
 
-  const accent = '#065f46'; // Emerald OHADA
+  const accent = DOC_ACCENTS.bl;
   const fmt = (v) => formatCurrency(v, currencySymbol, currencyPosition);
 
   // Numéro de Bordereau de Livraison dérivé de la pièce (ex: FAC-2026-0001 -> BL-2026-0001)
@@ -137,14 +139,14 @@ export function DeliveryNotePdfPreview({
 
   return (
     <DocumentShell
-      title="Bordereau de livraison (BL)"
+      title="Bon de livraison (BL)"
       reference={blNumber}
       actions={actions}
       onClose={onClose}
     >
       <DocHeader
         company={company}
-        docTitle="BORDEREAU DE LIVRAISON"
+        docTitle="BON DE LIVRAISON"
         docNumber={blNumber}
         accent={accent}
         meta={meta}
@@ -154,11 +156,12 @@ export function DeliveryNotePdfPreview({
         company={company}
         customer={customer}
         fallbackName={liveDoc.customerName}
-        recipientLabel="Livré à (Destinataire & Adresse de livraison)"
+        recipientLabel="Livré à — adresse de livraison"
+        accent={accent}
       />
 
       {/* Bandeau logistique de livraison */}
-      <div className="mt-4 grid grid-cols-4 border border-slate-300 bg-slate-50/80 text-[9.5px] divide-x divide-slate-300">
+      <div className="mt-4 grid grid-cols-4 overflow-hidden border border-slate-200 bg-[#F8FAFC] text-[9.5px] divide-x divide-slate-200">
         <div className="px-2.5 py-1.5">
           <div className="text-[8px] font-semibold uppercase tracking-wider text-slate-400">
             Document de référence
@@ -187,17 +190,18 @@ export function DeliveryNotePdfPreview({
           <div className="text-[8px] font-semibold uppercase tracking-wider text-slate-400">
             Total colis / unités
           </div>
-          <div className="font-mono font-bold text-emerald-800 mt-0.5">
+          <div className="font-mono font-bold mt-0.5" style={{ color: accent }}>
             {totalUnits} article(s) • {items.length} réf.
           </div>
         </div>
       </div>
 
       {/* Tableau des articles livrés */}
-      <table className="w-full mt-4 text-[9.5px] border border-slate-300">
+      <div className="mt-4 border border-slate-200 overflow-hidden">
+      <table className="w-full text-[9.5px]">
         <thead>
           <tr
-            className="text-white text-[8.5px] uppercase tracking-wider"
+            className="text-white text-[8px] uppercase tracking-[0.1em]"
             style={{ backgroundColor: accent }}
           >
             <th className="py-1.5 px-2 text-center font-semibold w-[6%]">N°</th>
@@ -221,9 +225,7 @@ export function DeliveryNotePdfPreview({
             return (
               <tr
                 key={item.id || idx}
-                className={`avoid-break border-b border-slate-200 ${
-                  idx % 2 ? 'bg-slate-50/70' : ''
-                }`}
+                className="avoid-break border-b border-slate-200"
               >
                 <td className="py-2 px-2 text-center font-mono text-slate-500">
                   {String(idx + 1).padStart(2, '0')}
@@ -236,7 +238,7 @@ export function DeliveryNotePdfPreview({
                 </td>
                 <td className="py-2 px-2 text-center text-slate-600">{item.unit || 'unité'}</td>
                 <td className="py-2 px-2 text-center font-mono text-slate-700">{qty}</td>
-                <td className="py-2 px-2 text-center font-mono font-bold text-slate-900 bg-emerald-50/40">
+                <td className="py-2 px-2 text-center font-mono font-bold text-slate-900 bg-[#F8FAFC]">
                   {qty}
                 </td>
                 {showPrices ? (
@@ -244,8 +246,11 @@ export function DeliveryNotePdfPreview({
                     {fmt(item.totalHT)}
                   </td>
                 ) : (
-                  <td className="py-2 px-2 text-center font-mono text-[9px] text-emerald-700 font-semibold">
-                    ☑ Conforme
+                  <td className="py-2 px-2 text-center">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[8.5px] font-bold">
+                      <span className="w-2.5 h-2.5 rounded-[2px] border border-emerald-600" />
+                      Conforme
+                    </span>
                   </td>
                 )}
               </tr>
@@ -253,24 +258,27 @@ export function DeliveryNotePdfPreview({
           })}
         </tbody>
         <tfoot>
-          <tr className="bg-slate-100 border-t-2 border-slate-300 font-bold text-slate-900">
-            <td colSpan={4} className="py-1.5 px-2.5 text-right uppercase text-[9px]">
-              Total général des quantités livrées :
+          <tr className="font-bold text-white" style={{ backgroundColor: accent }}>
+            <td colSpan={4} className="py-2 px-3 text-right uppercase text-[8.5px] tracking-[0.1em]">
+              Total des quantités livrées
             </td>
-            <td className="py-1.5 px-2 text-center font-mono">{totalUnits}</td>
-            <td className="py-1.5 px-2 text-center font-mono text-emerald-800">{totalUnits}</td>
-            <td className="py-1.5 px-2 text-right font-mono">
+            <td className="py-2 px-2 text-center font-mono">{totalUnits}</td>
+            <td className="py-2 px-2 text-center font-mono">{totalUnits}</td>
+            <td className="py-2 px-2 text-right font-mono pr-3">
               {showPrices ? fmt(liveDoc.totalHT) : 'COMPLET'}
             </td>
           </tr>
         </tfoot>
       </table>
+      </div>
 
       {/* Observations éventuelles */}
-      <div className="mt-3 text-[9px] text-slate-600 border border-slate-200 bg-slate-50/50 px-3 py-2 rounded-xs">
-        <span className="font-semibold text-slate-800">Observations & réserves à la livraison : </span>
-        {liveDoc.notes ||
-          'Matériel vérifié et testé avant expédition. Le client reconnaît avoir reçu les articles ci-dessus en parfait état de fonctionnement.'}
+      <div className="mt-3 text-[9px] text-slate-600 border border-slate-200 bg-[#F8FAFC] px-3.5 py-2.5">
+        <DocSectionTitle accent={accent}>Observations & réserves à la livraison</DocSectionTitle>
+        <div>
+          {liveDoc.notes ||
+            'Matériel vérifié et testé avant expédition. Le client reconnaît avoir reçu les articles ci-dessus en parfait état de fonctionnement.'}
+        </div>
       </div>
 
       {/* Double Cadre Officiel de Décharge : Expéditeur (avec Cachet Numérique) & Réceptionnaire (Client) */}

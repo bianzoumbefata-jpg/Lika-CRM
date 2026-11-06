@@ -14,7 +14,10 @@ import {
   DocParties,
   DocItemsTable,
   TotalRow,
+  TotalsCard,
+  DocSectionTitle,
   DocFooter,
+  DOC_ACCENTS,
 } from '../common/DocumentSheet';
 
 export function InvoicePdfPreview({
@@ -43,7 +46,7 @@ export function InvoicePdfPreview({
   const company = settings?.company || {};
   const customer = customers?.find((c) => c.id === liveInvoice.customerId);
   const isCreditNote = liveInvoice.type === 'avoir';
-  const accent = isCreditNote ? '#9f1239' : '#065f46';
+  const accent = isCreditNote ? DOC_ACCENTS.avoir : DOC_ACCENTS.facture;
   const fmt = (v) => formatCurrency(v, currencySymbol, currencyPosition);
   const statusLabel = STATUS_CONFIG[liveInvoice.status]?.label || liveInvoice.status;
   const activeStamp = getEffectiveInvoiceStamp(liveInvoice);
@@ -55,7 +58,7 @@ export function InvoicePdfPreview({
   if (liveInvoice.quoteId) meta.push({ label: 'Réf. devis :', value: liveInvoice.quoteId });
   if (liveInvoice.originalInvoiceId)
     meta.push({ label: 'Facture d’origine :', value: liveInvoice.originalInvoiceId });
-  meta.push({ label: 'Statut :', value: statusLabel });
+  meta.push({ label: 'Statut :', value: statusLabel, highlight: true });
 
   const actions = (
     <div className="flex items-center gap-2 flex-wrap">
@@ -156,15 +159,16 @@ export function InvoicePdfPreview({
         customer={customer}
         fallbackName={liveInvoice.customerName}
         recipientLabel="Facturé à"
+        accent={accent}
       />
 
       <DocItemsTable items={liveInvoice.items} currencyFmt={fmt} accent={accent} />
 
       {/* Règlements + Totaux + Cachet Numérique */}
-      <div className="avoid-break grid grid-cols-[1fr_68mm] gap-5 mt-4 items-start">
-        <div className="text-[9.5px] text-slate-600 space-y-2.5">
+      <div className="avoid-break grid grid-cols-[1fr_70mm] gap-5 mt-4 items-start">
+        <div className="text-[9.5px] text-[#475569] space-y-3 pt-1">
           <div>
-            <div className="font-semibold text-slate-800 mb-0.5">Règlements reçus</div>
+            <DocSectionTitle accent={accent}>Règlements reçus</DocSectionTitle>
             {liveInvoice.payments && liveInvoice.payments.length > 0 ? (
               <table className="w-full">
                 <tbody>
@@ -187,14 +191,14 @@ export function InvoicePdfPreview({
 
           {liveInvoice.terms && (
             <div>
-              <div className="font-semibold text-slate-800">Conditions de paiement</div>
+              <DocSectionTitle accent={accent}>Conditions de paiement</DocSectionTitle>
               <div>{liveInvoice.terms}</div>
             </div>
           )}
 
           {liveInvoice.notes && (
             <div>
-              <div className="font-semibold text-slate-800">Notes & Observations</div>
+              <DocSectionTitle accent={accent}>Notes & observations</DocSectionTitle>
               <div className="whitespace-pre-wrap">{liveInvoice.notes}</div>
             </div>
           )}
@@ -202,13 +206,14 @@ export function InvoicePdfPreview({
 
         {/* Colonne de droite : Tableau des totaux + Cachet Numérique Officiel */}
         <div className="space-y-4 flex flex-col items-end">
-          <div className="w-full border border-slate-300 text-[10px]">
+          <div className="w-full">
+          <TotalsCard>
             <TotalRow label="Total net HT" value={fmt(liveInvoice.totalHT)} />
             <TotalRow label="TVA (18 %)" value={fmt(liveInvoice.totalVAT)} />
             <TotalRow
               label="Total TTC"
               value={fmt(liveInvoice.totalTTC)}
-              className="border-t border-slate-200 font-semibold"
+              className="font-semibold !text-[#0F172A]"
             />
             {!isCreditNote && (
               <TotalRow
@@ -223,6 +228,7 @@ export function InvoicePdfPreview({
               strong
               accent={accent}
             />
+          </TotalsCard>
           </div>
 
           {/* Zone d'apposition du Cachet Numérique Officiel */}
@@ -254,7 +260,7 @@ export function InvoicePdfPreview({
         <div className="mt-3 text-[9px] italic text-slate-500">{company.invoiceNotes}</div>
       )}
 
-      <DocFooter company={company} />
+      <DocFooter company={company} accent={accent} />
     </DocumentShell>
   );
 }

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { initialData } from '../../server/initialData.js';
 
 const CrmContext = createContext(null);
@@ -7,6 +7,9 @@ export function CrmProvider({ children }) {
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  // Référence toujours à jour (évite les fermetures périmées dans les appels asynchrones)
+  const dataRef = useRef(data);
+  dataRef.current = data;
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type, id: Date.now() });
@@ -1064,6 +1067,214 @@ export function CrmProvider({ children }) {
     return newThread;
   };
 
+  // --- MESSAGERIE RÉELLE (IMAP / SMTP via le serveur Lika) ---
+  const [mailStatus, setMailStatus] = useState(null);
+  const [mailSyncing, setMailSyncing] = useState(false);
+
+  const mailApi = async (path, body) => {
+    const res = await fetch(path, body !== undefined ? {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    } : undefined);
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.error || `Erreur ${res.status}`);
+    return json;
+  };
+
+  const refreshMailStatus = useCallback(async () => {
+    try {
+      const s = await mailApi('/api/mail/status');
+      setMailStatus(s);
+      return s;
+    } catch {
+      setMailStatus({ configured: false, offline: true, presets: [] });
+      return null;
+    }
+  }, []);
+
+  const normalizeSubject = (s = '') =>
+    String(s).replace(/^\s*((re|tr|fw|fwd)\s*:\s*)+/gi, '').trim().toLowerCase();
+
+  const findCustomerByEmail = (email, src) => {
+    const e = String(email || '').toLowerCase();
+    if (!e) return null;
+    return (src.customers || []).find(
+      (c) =>
+        String(c.email || '').toLowerCase() === e ||
+        (c.contacts || []).some((ct) => String(ct.email || '').toLowerCase() === e)
+    ) || null;
+  };
+
+  /** Range les e-mails reçus dans les conversations de la boîte de réception. */
+  const mergeIncomingEmails = (messages = []) => {
+    const src = dataRef.current;
+    let threads = [...(src.inboxThreads || [])];
+    let added = 0;
+    const known = new Set(threads.flatMap((t) => (t.messages || []).map((m) => m.messageId).filter(Boolean)));
+
+    messages.forEach((m) => {
+      if (known.has(m.messageId)) return;
+      known.add(m.messageId);
+      const refs = [m.inReplyTo, ...(m.references || [])].filter(Boolean);
+      let idx = threads.findIndex(
+        (t) => t.channel === 'email' && (t.messages || []).some((x) => x.messageId && refs.includes(x.messageId))
+      );
+      if (idx < 0) {
+        idx = threads.findIndex(
+          (t) =>
+            t.channel === 'email' &&
+            String(t.email || '').toLowerCase() === m.fromEmail &&
+            normalizeSubject(t.subject) === (m.subjectKey || normalizeSubject(m.subject))
+        );
+      }
+      const msg = {
+        id: `M-${m.uid}-${Date.now()}`,
+        sender: 'client',
+        senderName: m.fromName,
+        timestamp: m.date.replace('T', ' ').slice(0, 16),
+        type: 'message',
+        body: m.text,
+        messageId: m.messageId,
+        attachments: m.attachments || [],
+      };
+      if (idx >= 0) {
+        const t = threads[idx];
+        threads[idx] = {
+          ...t,
+          unread: t.unread || !m.seen,
+          status: 'open',
+          updatedAt: m.date,
+          messages: [...(t.messages || []), msg].sort((a, b) => String(a.timestamp).localeCompare(String(b.timestamp))),
+        };
+      } else {
+        const cust = findCustomerByEmail(m.fromEmail, src);
+        threads = [
+          {
+            id: `MAIL-${m.uid}-${String(Date.now()).slice(-5)}`,
+            companyName: cust?.name || m.fromName,
+            contactName: m.fromName,
+            customerId: cust?.id || null,
+            email: m.fromEmail,
+            phone: cust?.mobile || cust?.phone || '',
+            city: cust?.city || '',
+            channel: 'email',
+            subject: m.subject,
+            status: 'open',
+            unread: !m.seen,
+            assignedTo: null,
+            estimatedValue: 0,
+            updatedAt: m.date,
+            source: 'imap',
+            messages: [msg],
+          },
+          ...threads,
+        ];
+      }
+      added += 1;
+    });
+
+    if (added) {
+      threads.sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+      persistData({ ...src, inboxThreads: threads });
+    }
+    return added;
+  };
+
+  const syncMailbox = async ({ silent = false } = {}) => {
+    setMailSyncing(true);
+    try {
+      const out = await mailApi('/api/mail/sync', {});
+      const added = mergeIncomingEmails(out.messages);
+      setMailStatus((s) => (s ? { ...s, lastSyncAt: out.lastSyncAt } : s));
+      if (!silent) showToast(added ? `${added} nouvel(s) e-mail(s) reçu(s)` : 'Boîte de réception à jour', added ? 'success' : 'info');
+      return added;
+    } catch (err) {
+      if (!silent) showToast(`Synchronisation impossible : ${err.message}`, 'error');
+      return 0;
+    } finally {
+      setMailSyncing(false);
+    }
+  };
+
+  /**
+   * Envoie un e-mail réel depuis la boîte connectée et l'archive dans une
+   * conversation (existante via threadId, sinon nouvelle).
+   */
+  const sendEmail = async ({ to, cc, subject, text, attachments = [], threadId, companyName, contactName, customerId }) => {
+    const src = dataRef.current;
+    const thread = threadId ? (src.inboxThreads || []).find((t) => t.id === threadId) : null;
+    const lastIncoming = thread ? [...(thread.messages || [])].reverse().find((m) => m.messageId) : null;
+    const refs = thread ? (thread.messages || []).map((m) => m.messageId).filter(Boolean) : [];
+
+    const out = await mailApi('/api/mail/send', {
+      to,
+      cc,
+      subject,
+      text,
+      attachments,
+      inReplyTo: lastIncoming?.messageId,
+      references: refs,
+    });
+
+    const currentUser = src.settings?.currentUser?.name || 'Moi';
+    const msg = {
+      id: `M-${Date.now()}`,
+      sender: 'agent',
+      senderName: currentUser,
+      timestamp: out.sentAt.replace('T', ' ').slice(0, 16),
+      type: 'message',
+      body: text,
+      messageId: out.messageId,
+      attachments: attachments.map((a) => ({ filename: a.filename, contentType: a.contentType })),
+    };
+    const latest = dataRef.current;
+    let threads = [...(latest.inboxThreads || [])];
+    if (thread) {
+      threads = threads.map((t) =>
+        t.id === thread.id ? { ...t, unread: false, updatedAt: out.sentAt, messages: [...(t.messages || []), msg] } : t
+      );
+    } else {
+      const cust = customerId ? (latest.customers || []).find((c) => c.id === customerId) : findCustomerByEmail(to, latest);
+      threads = [
+        {
+          id: `MAIL-OUT-${String(Date.now()).slice(-7)}`,
+          companyName: companyName || cust?.name || to,
+          contactName: contactName || to,
+          customerId: cust?.id || customerId || null,
+          email: String(to).toLowerCase(),
+          phone: cust?.mobile || cust?.phone || '',
+          city: cust?.city || '',
+          channel: 'email',
+          subject,
+          status: 'open',
+          unread: false,
+          assignedTo: currentUser,
+          estimatedValue: 0,
+          updatedAt: out.sentAt,
+          source: 'smtp',
+          messages: [msg],
+        },
+        ...threads,
+      ];
+    }
+    persistData({ ...latest, inboxThreads: threads });
+    return out;
+  };
+
+  useEffect(() => {
+    refreshMailStatus();
+  }, [refreshMailStatus]);
+
+  // Relève automatique toutes les 3 minutes quand une boîte est connectée
+  useEffect(() => {
+    if (!mailStatus?.configured || loading) return undefined;
+    syncMailbox({ silent: true });
+    const timer = setInterval(() => syncMailbox({ silent: true }), 3 * 60 * 1000);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mailStatus?.configured, loading]);
+
   // --- CALL LOGS (JOURNAL D'APPELS CRM) ---
   const saveCallLog = (call) => {
     const logs = data.callLogs || [];
@@ -1502,6 +1713,11 @@ export function CrmProvider({ children }) {
         assignThread,
         markThreadRead,
         createInboxThread,
+        mailStatus,
+        mailSyncing,
+        refreshMailStatus,
+        syncMailbox,
+        sendEmail,
         callLogs: data.callLogs || [],
         saveCallLog,
         deleteCallLog,

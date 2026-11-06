@@ -13,6 +13,9 @@ import {
   Check,
   Building2,
   Eye,
+  Sun,
+  Moon,
+  Sparkles,
 } from 'lucide-react';
 import { useCrm } from '../../context/CrmContext';
 import { NAV_LABELS, NAV_SECTIONS } from './Sidebar';
@@ -35,6 +38,9 @@ export function Navbar({
   onOpenQuickAction,
   onToggleMobileMenu,
   onNavigate,
+  onOpenAi,
+  theme,
+  onToggleTheme,
 }) {
   const {
     settings,
@@ -75,7 +81,7 @@ export function Navbar({
   ];
 
   return (
-    <header className="sticky top-0 z-30 h-14 bg-white/95 backdrop-blur-md border-b border-slate-200/90">
+    <header className="sticky top-0 z-30 h-16 bg-[var(--bg)]/85 backdrop-blur-xl border-b border-[var(--border)]" style={{ backgroundColor: 'color-mix(in srgb, var(--bg) 85%, transparent)' }}>
       <div className="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 max-w-[1440px] mx-auto">
         {/* Left: Breadcrumb navigation */}
         <div className="flex items-center gap-2.5 min-w-0">
@@ -103,13 +109,13 @@ export function Navbar({
         <div className="flex-1 max-w-md hidden md:block">
           <button
             onClick={onOpenSearch}
-            className="w-full h-8 flex items-center justify-between px-3 text-[12.5px] text-slate-400 bg-slate-50/90 hover:bg-slate-100/80 border border-slate-200/90 rounded-md transition shadow-2xs"
+            className="w-full h-10 flex items-center justify-between px-4 text-[13px] text-slate-400 bg-white hover:bg-slate-50 border border-slate-200 rounded-full transition"
           >
             <span className="flex items-center gap-2 truncate">
               <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <span className="truncate">Rechercher un client, devis, facture, article…</span>
             </span>
-            <kbd className="ml-2 px-1.5 py-0.5 text-[10px] font-mono font-semibold bg-white border border-slate-200 rounded text-slate-500 shrink-0">
+            <kbd className="ml-2 px-2 py-0.5 text-[10px] font-mono font-semibold bg-slate-100 border border-slate-200 rounded-full text-slate-500 shrink-0">
               Ctrl K
             </kbd>
           </button>
@@ -124,6 +130,26 @@ export function Navbar({
             <Search className="w-4 h-4" />
           </button>
 
+          {/* Thème clair / sombre */}
+          <button
+            onClick={onToggleTheme}
+            aria-label={theme === 'dark' ? 'Passer en thème clair' : 'Passer en thème sombre'}
+            title={theme === 'dark' ? 'Thème clair' : 'Thème sombre'}
+            className="h-10 w-10 rounded-full text-slate-500 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition"
+          >
+            {theme === 'dark' ? <Sun className="w-[17px] h-[17px]" /> : <Moon className="w-[17px] h-[17px]" />}
+          </button>
+
+          {/* Assistant IA */}
+          <button
+            onClick={onOpenAi}
+            aria-label="Ouvrir l'assistant IA"
+            className="h-10 flex items-center gap-2 pl-3 pr-3.5 rounded-full text-[13px] font-bold text-white cf-gradient shadow-lg shadow-brand-500/25 hover:brightness-110 transition"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span className="hidden xl:inline whitespace-nowrap">Assistant IA</span>
+          </button>
+
           {/* Notifications (Email Read Receipts + Overdue Invoices + Quotes) */}
           <div className="relative" ref={bellRef}>
             <button
@@ -134,7 +160,8 @@ export function Navbar({
                   markReadNotificationsSeen?.();
                 }
               }}
-              className="relative h-8 w-8 rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-transparent hover:border-slate-200/70 flex items-center justify-center transition"
+              aria-label="Notifications"
+              className="relative h-10 w-10 rounded-full text-slate-500 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 flex items-center justify-center transition"
               title="Notifications d'ouverture d'e-mails et échéances"
             >
               <Bell className="w-[16px] h-[16px]" />
@@ -150,7 +177,7 @@ export function Navbar({
                   <span className="text-[12px] font-semibold text-slate-800">
                     Centre de notifications & Accusés de lecture
                   </span>
-                  <span className="text-[11px] font-medium text-emerald-700">
+                  <span className="text-[11px] font-medium text-brand-700">
                     {readNotifications.length} lecture(s)
                   </span>
                 </div>
@@ -169,19 +196,19 @@ export function Navbar({
                         setBellOpen(false);
                         onNavigate?.('agenda');
                       }}
-                      className="w-full text-left px-4 py-2.5 bg-emerald-50/50 hover:bg-emerald-50 flex gap-2.5 transition"
+                      className="w-full text-left px-4 py-2.5 bg-brand-50/50 hover:bg-brand-50 flex gap-2.5 transition"
                     >
-                      <span className="mt-1 w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                      <span className="mt-1 w-5 h-5 rounded-full bg-brand-600 text-white flex items-center justify-center shrink-0">
                         <Eye className="w-3 h-3" />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="font-bold text-emerald-950 block truncate">
+                        <span className="font-bold text-brand-950 block truncate">
                           📬 Mail lu par {notif.recipientCompany}
                         </span>
                         <span className="block text-slate-600 text-[11.5px] truncate">
                           « {notif.subject} »
                         </span>
-                        <span className="block font-mono text-[10.5px] text-emerald-700 mt-0.5">
+                        <span className="block font-mono text-[10.5px] text-brand-700 mt-0.5">
                           Ouvert à {notif.openedAt} ({notif.openCount} fois)
                         </span>
                       </span>
@@ -233,7 +260,7 @@ export function Navbar({
           <div className="relative" ref={quickRef}>
             <button
               onClick={() => setQuickOpen(!quickOpen)}
-              className="h-8 flex items-center gap-1.5 px-3 text-[12.5px] font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-md shadow-2xs transition whitespace-nowrap"
+              className="h-10 flex items-center gap-1.5 px-4 text-[13px] font-bold text-white bg-brand-500 hover:bg-brand-600 rounded-full shadow-lg shadow-brand-500/25 transition whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Nouveau</span>
@@ -277,7 +304,7 @@ export function Navbar({
               onClick={() => setUserOpen(!userOpen)}
               className="h-9 flex items-center gap-2 pl-1 pr-2 rounded-md hover:bg-slate-100/80 transition"
             >
-              <div className="w-7 h-7 rounded-md bg-gradient-to-br from-brand-600 to-brand-800 text-white font-semibold text-[11px] flex items-center justify-center shadow-2xs">
+              <div className="w-9 h-9 rounded-full cf-gradient text-white font-bold text-[11px] flex items-center justify-center ring-2 ring-white">
                 {currentUser.avatar || 'AD'}
               </div>
               <div className="text-left hidden lg:block leading-tight">

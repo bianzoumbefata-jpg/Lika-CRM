@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { MailboxBar } from './MailboxConnect';
 import {
   Inbox,
   Phone,
@@ -73,7 +74,12 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
     quotes = [],
     invoices = [],
     settings,
+    mailStatus,
+    sendEmail,
+    showToast,
   } = useCrm();
+  const mailConnected = Boolean(mailStatus?.configured);
+  const [sending, setSending] = useState(false);
 
   const currentUserName = settings?.currentUser?.name || 'Mamadou Lamine Diop';
 
@@ -224,16 +230,81 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
     }
   };
 
-  const handleSendReply = (e) => {
+  const openWhatsApp = (phone, text) => {
+    const digits = String(phone || '').replace(/[^0-9]/g, '');
+    const intl = digits.length === 9 ? `221${digits}` : digits;
+    window.open(`https://wa.me/${intl}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+  };
+
+  const handleSendReply = async (e) => {
     e.preventDefault();
-    if (!activeThread || !replyText.trim()) return;
-    replyToThread(activeThread.id, replyText.trim(), composerMode);
+    if (!activeThread || !replyText.trim() || sending) return;
+    const text = replyText.trim();
+
+    // Note interne : jamais envoyée au client
+    if (composerMode === 'note') {
+      replyToThread(activeThread.id, text, 'note');
+      setReplyText('');
+      return;
+    }
+
+    // Conversation WhatsApp : ouverture de WhatsApp avec le message, puis archivage
+    if (activeThread.channel === 'whatsapp' && activeThread.phone) {
+      openWhatsApp(activeThread.phone, text);
+      replyToThread(activeThread.id, text, 'message');
+      setReplyText('');
+      return;
+    }
+
+    // E-mail réel via la boîte connectée
+    if (activeThread.channel === 'email' && mailConnected && activeThread.email) {
+      setSending(true);
+      try {
+        const subject = /^re\s*:/i.test(activeThread.subject) ? activeThread.subject : `Re: ${activeThread.subject}`;
+        await sendEmail({ to: activeThread.email, subject, text, threadId: activeThread.id });
+        showToast?.(`E-mail envoyé à ${activeThread.email}`, 'success');
+        setReplyText('');
+      } catch (err) {
+        showToast?.(`Envoi impossible : ${err.message}`, 'error');
+      } finally {
+        setSending(false);
+      }
+      return;
+    }
+
+    replyToThread(activeThread.id, text, composerMode);
     setReplyText('');
   };
 
-  const handleCreateNewThread = (e) => {
+  const handleCreateNewThread = async (e) => {
     e.preventDefault();
     if (!newThreadForm.companyName.trim() || !newThreadForm.subject.trim()) return;
+
+    if (newThreadForm.channel === 'email' && mailConnected && newThreadForm.email.includes('@')) {
+      setSending(true);
+      try {
+        await sendEmail({
+          to: newThreadForm.email.trim(),
+          subject: newThreadForm.subject.trim(),
+          text: newThreadForm.initialMessage || '',
+          companyName: newThreadForm.companyName.trim(),
+          contactName: newThreadForm.contactName.trim(),
+        });
+        showToast?.(`E-mail envoyé à ${newThreadForm.email}`, 'success');
+      } catch (err) {
+        showToast?.(`Envoi impossible : ${err.message}`, 'error');
+        setSending(false);
+        return;
+      }
+      setSending(false);
+      setNewThreadModalOpen(false);
+      setNewThreadForm((f) => ({ ...f, companyName: '', contactName: '', email: '', subject: '', initialMessage: '' }));
+      return;
+    }
+
+    if (newThreadForm.channel === 'whatsapp' && newThreadForm.phone) {
+      openWhatsApp(newThreadForm.phone, newThreadForm.initialMessage || '');
+    }
     const created = createInboxThread(newThreadForm);
     setSelectedThreadId(created.id);
     setNewThreadModalOpen(false);
@@ -311,7 +382,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
     switch (outcome) {
       case 'connecte':
         return (
-          <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-brand-50 text-brand-700 border border-brand-200">
             ✓ Connecté
           </span>
         );
@@ -341,7 +412,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
       {/* Top Header & HubSpot-inspired Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200/90 rounded-xl px-5 py-3.5 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-600/10 border border-emerald-600/20 flex items-center justify-center text-emerald-700">
+          <div className="w-10 h-10 rounded-xl bg-brand-600/10 border border-brand-600/20 flex items-center justify-center text-brand-700">
             {activeMode === 'inbox' ? (
               <Inbox className="w-5 h-5" />
             ) : (
@@ -355,7 +426,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                   ? 'Boîte de Réception Omnicanale (Inbox)'
                   : 'Journal des Appels & Téléphonie CRM'}
               </h1>
-              <span className="px-2 py-0.5 text-[10.5px] font-mono font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md">
+              <span className="px-2 py-0.5 text-[10.5px] font-mono font-semibold bg-brand-50 text-brand-800 border border-brand-200 rounded-md">
                 E-mail • WhatsApp • Téléphonie
               </span>
             </div>
@@ -371,14 +442,14 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
               onClick={() => setActiveMode('inbox')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
                 activeMode === 'inbox'
-                  ? 'bg-white text-emerald-800 shadow-xs border border-slate-200/80'
+                  ? 'bg-white text-brand-800 shadow-xs border border-slate-200/80'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Inbox className="w-3.5 h-3.5" />
               <span>Boîte de réception</span>
               {counts.all_open > 0 && (
-                <span className="ml-1 px-1.5 py-0.2 rounded bg-emerald-600 text-white text-[10px] font-mono">
+                <span className="ml-1 px-1.5 py-0.2 rounded bg-brand-600 text-white text-[10px] font-mono">
                   {counts.all_open}
                 </span>
               )}
@@ -387,7 +458,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
               onClick={() => setActiveMode('scheduled')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
                 activeMode === 'scheduled'
-                  ? 'bg-white text-emerald-800 shadow-xs border border-slate-200/80'
+                  ? 'bg-white text-brand-800 shadow-xs border border-slate-200/80'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -398,7 +469,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
               onClick={() => setActiveMode('calls')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition ${
                 activeMode === 'calls'
-                  ? 'bg-white text-emerald-800 shadow-xs border border-slate-200/80'
+                  ? 'bg-white text-brand-800 shadow-xs border border-slate-200/80'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -409,16 +480,16 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
 
           <button
             onClick={() => setScheduleModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-100 border border-emerald-700/60 text-xs font-semibold shadow-xs transition"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-brand-950 hover:bg-brand-900 text-brand-100 border border-brand-700/60 text-xs font-semibold shadow-xs transition"
           >
-            <CalendarClock className="w-3.5 h-3.5 text-emerald-400" />
+            <CalendarClock className="w-3.5 h-3.5 text-brand-400" />
             <span>Programmer un mail suivi</span>
           </button>
 
           {activeMode === 'inbox' ? (
             <button
               onClick={() => setNewThreadModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Nouveau message</span>
@@ -426,7 +497,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
           ) : activeMode === 'calls' ? (
             <button
               onClick={() => setNewCallModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Enregistrer un appel</span>
@@ -434,6 +505,9 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
           ) : null}
         </div>
       </div>
+
+      {/* Connexion de la boîte e-mail réelle (IMAP / SMTP) */}
+      {activeMode === 'inbox' && <MailboxBar />}
 
       {/* MODE 1: OMNICHANNEL INBOX (4 PANES LIKE HUBSPOT SCREENSHOT) */}
       {activeMode === 'inbox' && (
@@ -448,13 +522,13 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                 </div>
                 <button
                   onClick={() => setAgentAvailable(!agentAvailable)}
-                  className="w-full flex items-center justify-between text-left text-xs font-semibold text-slate-800 hover:text-emerald-700 transition"
+                  className="w-full flex items-center justify-between text-left text-xs font-semibold text-slate-800 hover:text-brand-700 transition"
                 >
                   <span className="flex items-center gap-2">
                     <span
                       className={`w-2.5 h-2.5 rounded-full ${
                         agentAvailable
-                          ? 'bg-emerald-500 ring-4 ring-emerald-500/20'
+                          ? 'bg-brand-500 ring-4 ring-brand-500/20'
                           : 'bg-amber-500 ring-4 ring-amber-500/20'
                       }`}
                     />
@@ -477,7 +551,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                     onClick={() => setInboxFilter('unassigned')}
                     className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition ${
                       inboxFilter === 'unassigned'
-                        ? 'bg-emerald-600/10 text-emerald-900 font-semibold border border-emerald-600/20'
+                        ? 'bg-brand-600/10 text-brand-900 font-semibold border border-brand-600/20'
                         : 'text-slate-600 hover:bg-slate-100'
                     }`}
                   >
@@ -494,12 +568,12 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                     onClick={() => setInboxFilter('mine')}
                     className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition ${
                       inboxFilter === 'mine'
-                        ? 'bg-emerald-600/10 text-emerald-900 font-semibold border border-emerald-600/20'
+                        ? 'bg-brand-600/10 text-brand-900 font-semibold border border-brand-600/20'
                         : 'text-slate-600 hover:bg-slate-100'
                     }`}
                   >
                     <span className="flex items-center gap-2">
-                      <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <UserCheck className="w-3.5 h-3.5 text-brand-600" />
                       <span>Qui me sont attribués</span>
                     </span>
                     <span className="font-mono text-[11px] font-bold text-slate-700">
@@ -511,12 +585,12 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                     onClick={() => setInboxFilter('all_open')}
                     className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition ${
                       inboxFilter === 'all_open'
-                        ? 'bg-emerald-600/10 text-emerald-900 font-semibold border border-emerald-600/20'
+                        ? 'bg-brand-600/10 text-brand-900 font-semibold border border-brand-600/20'
                         : 'text-slate-600 hover:bg-slate-100'
                     }`}
                   >
                     <span className="flex items-center gap-2">
-                      <FolderOpen className="w-3.5 h-3.5 text-emerald-700" />
+                      <FolderOpen className="w-3.5 h-3.5 text-brand-700" />
                       <span>Toutes les ouvertures</span>
                     </span>
                     <span className="font-mono text-[11px] font-bold text-slate-900">
@@ -528,7 +602,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                     onClick={() => setInboxFilter('closed')}
                     className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition ${
                       inboxFilter === 'closed'
-                        ? 'bg-emerald-600/10 text-emerald-900 font-semibold border border-emerald-600/20'
+                        ? 'bg-brand-600/10 text-brand-900 font-semibold border border-brand-600/20'
                         : 'text-slate-600 hover:bg-slate-100'
                     }`}
                   >
@@ -571,15 +645,15 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
             </div>
 
             {/* Connected Account Footer */}
-            <div className="p-2.5 rounded-lg bg-emerald-950 text-emerald-100 border border-emerald-800/60 space-y-1 mt-4">
+            <div className="p-2.5 rounded-lg bg-brand-950 text-brand-100 border border-brand-800/60 space-y-1 mt-4">
               <div className="flex items-center justify-between text-[11px] font-semibold">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
                   <span>Canal synchronisé</span>
                 </span>
-                <span className="font-mono text-[10px] text-emerald-300">ACTIF</span>
+                <span className="font-mono text-[10px] text-brand-300">ACTIF</span>
               </div>
-              <div className="text-[11px] text-emerald-200/90 font-mono truncate">
+              <div className="text-[11px] text-brand-200/90 font-mono truncate">
                 {settings?.company?.email || 'contact@openflex.sn'}
               </div>
             </div>
@@ -605,7 +679,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Rechercher BOA, client, sujet..."
-                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600"
                 />
               </div>
             </div>
@@ -626,7 +700,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                       onClick={() => handleSelectThread(thread)}
                       className={`w-full text-left p-3.5 transition flex items-start gap-3 ${
                         isSelected
-                          ? 'bg-emerald-50/70 border-l-4 border-l-emerald-600'
+                          ? 'bg-brand-50/70 border-l-4 border-l-brand-600'
                           : 'hover:bg-slate-50'
                       }`}
                     >
@@ -634,14 +708,14 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                         <div
                           className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold font-mono ${
                             isSelected
-                              ? 'bg-emerald-700 text-white'
+                              ? 'bg-brand-700 text-white'
                               : 'bg-slate-200 text-slate-700'
                           }`}
                         >
                           {getInitials(thread.companyName)}
                         </div>
                         {thread.unread && (
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white absolute -top-0.5 -right-0.5" />
+                          <span className="w-2.5 h-2.5 rounded-full bg-brand-500 ring-2 ring-white absolute -top-0.5 -right-0.5" />
                         )}
                       </div>
 
@@ -673,7 +747,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                           <span
                             className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-medium ${
                               thread.channel === 'whatsapp'
-                                ? 'bg-emerald-100 text-emerald-800'
+                                ? 'bg-brand-100 text-brand-800'
                                 : 'bg-blue-50 text-blue-700'
                             }`}
                           >
@@ -710,7 +784,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                 {/* Conversation Header (Like HubSpot "BOA SENEGAL" + "Fermer la conversation") */}
                 <div className="p-4 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center font-mono font-bold text-sm shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-brand-700 text-white flex items-center justify-center font-mono font-bold text-sm shrink-0">
                       {getInitials(activeThread.companyName)}
                     </div>
                     <div className="min-w-0">
@@ -722,7 +796,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                           className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                             activeThread.status === 'closed'
                               ? 'bg-slate-100 text-slate-600'
-                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-brand-50 text-brand-700 border border-brand-200'
                           }`}
                         >
                           {activeThread.status === 'closed' ? 'Fermée' : 'Ouverte'}
@@ -730,7 +804,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                       </div>
                       <div className="text-xs text-slate-500 truncate">
                         depuis{' '}
-                        <span className="font-semibold text-emerald-700">
+                        <span className="font-semibold text-brand-700">
                           {activeThread.contactName}
                         </span>{' '}
                         • {activeThread.email}
@@ -742,7 +816,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                     <select
                       value={activeThread.assignedTo || ''}
                       onChange={(e) => assignThread(activeThread.id, e.target.value)}
-                      className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none focus:border-emerald-600"
+                      className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none focus:border-brand-600"
                     >
                       <option value="">Non attribué</option>
                       {AGENTS.map((ag) => (
@@ -757,7 +831,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${
                         activeThread.status === 'closed'
                           ? 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
-                          : 'bg-white border-slate-300 text-slate-800 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800'
+                          : 'bg-white border-slate-300 text-slate-800 hover:bg-brand-50 hover:border-brand-300 hover:text-brand-800'
                       }`}
                     >
                       {activeThread.status === 'closed' ? (
@@ -767,7 +841,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                         </>
                       ) : (
                         <>
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <Check className="w-3.5 h-3.5 text-brand-600" />
                           <span>Fermer la conversation</span>
                         </>
                       )}
@@ -778,7 +852,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                 {/* Subject Banner */}
                 <div className="px-4 py-2 bg-slate-100/80 border-b border-slate-200 text-xs font-semibold text-slate-800 flex items-center justify-between">
                   <span className="truncate">Objet : {activeThread.subject}</span>
-                  <span className="font-mono text-[11px] text-emerald-700 shrink-0 ml-2">
+                  <span className="font-mono text-[11px] text-brand-700 shrink-0 ml-2">
                     Enjeu : {formatCurrency(activeThread.estimatedValue || 0)}
                   </span>
                 </div>
@@ -795,7 +869,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                           isNote
                             ? 'bg-amber-50/90 border-amber-200 text-amber-950'
                             : isAgent
-                            ? 'bg-emerald-50/80 border-emerald-200 text-slate-800 ml-6'
+                            ? 'bg-brand-50/80 border-brand-200 text-slate-800 ml-6'
                             : 'bg-white border-slate-200 text-slate-800 mr-6 shadow-2xs'
                         }`}
                       >
@@ -833,7 +907,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                         onClick={() => setComposerMode('message')}
                         className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
                           composerMode === 'message'
-                            ? 'bg-white text-emerald-800 shadow-2xs'
+                            ? 'bg-white text-brand-800 shadow-2xs'
                             : 'text-slate-600'
                         }`}
                       >
@@ -860,7 +934,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                           key={idx}
                           type="button"
                           onClick={() => setReplyText(snip.text)}
-                          className="px-2 py-0.5 rounded text-[10.5px] font-medium bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 border border-slate-200 transition"
+                          className="px-2 py-0.5 rounded text-[10.5px] font-medium bg-slate-100 hover:bg-brand-50 hover:text-brand-800 text-slate-600 border border-slate-200 transition"
                         >
                           + {snip.label}
                         </button>
@@ -880,7 +954,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                     className={`w-full p-2.5 text-xs rounded-lg border focus:outline-none ${
                       composerMode === 'note'
                         ? 'bg-amber-50/50 border-amber-300 focus:border-amber-500'
-                        : 'bg-slate-50/60 border-slate-200 focus:bg-white focus:border-emerald-600'
+                        : 'bg-slate-50/60 border-slate-200 focus:bg-white focus:border-brand-600'
                     }`}
                   />
 
@@ -914,9 +988,9 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                         <button
                           type="button"
                           onClick={onOpenAiAssistant}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-950 text-emerald-100 hover:bg-emerald-900 transition"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-brand-950 text-brand-100 hover:bg-brand-900 transition"
                         >
-                          <Sparkles className="w-3 h-3 text-emerald-400" />
+                          <Sparkles className="w-3 h-3 text-brand-400" />
                           <span>Agent IA</span>
                         </button>
                       )}
@@ -928,7 +1002,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                           )}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 transition"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-brand-50 text-brand-800 hover:bg-brand-100 border border-brand-200 transition"
                         >
                           <MessageSquare className="w-3 h-3" />
                           <span>WhatsApp</span>
@@ -938,14 +1012,20 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
 
                     <button
                       type="submit"
-                      disabled={!replyText.trim()}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-xs font-semibold shadow-xs transition"
+                      disabled={!replyText.trim() || sending}
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 disabled:opacity-40 text-white text-xs font-semibold shadow-xs transition"
                     >
-                      <Send className="w-3.5 h-3.5" />
+                      <Send className={`w-3.5 h-3.5 ${sending ? 'animate-pulse' : ''}`} />
                       <span>
                         {composerMode === 'note'
                           ? 'Enregistrer la note'
-                          : 'Envoyer la réponse'}
+                          : sending
+                          ? 'Envoi…'
+                          : activeThread.channel === 'whatsapp'
+                          ? 'Envoyer sur WhatsApp'
+                          : activeThread.channel === 'email' && mailConnected
+                          ? "Envoyer l'e-mail"
+                          : 'Enregistrer la réponse'}
                       </span>
                     </button>
                   </div>
@@ -966,7 +1046,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                     À propos de l'objet Contact
                   </span>
-                  <span className="text-[11px] font-semibold text-emerald-700">
+                  <span className="text-[11px] font-semibold text-brand-700">
                     Fiche 360°
                   </span>
                 </div>
@@ -974,7 +1054,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                 {/* Identity Card */}
                 <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2.5">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-mono font-bold text-sm">
+                    <div className="w-11 h-11 rounded-xl bg-brand-700 text-white flex items-center justify-center font-mono font-bold text-sm">
                       {getInitials(activeThread.companyName)}
                     </div>
                     <div className="min-w-0">
@@ -1012,30 +1092,30 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                   <div className="grid grid-cols-2 gap-1.5 pt-2">
                     <button
                       onClick={openLogCallForActiveThread}
-                      className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 text-[11px] font-semibold transition"
+                      className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white hover:bg-brand-50 text-slate-700 hover:text-brand-800 border border-slate-200 text-[11px] font-semibold transition"
                     >
-                      <Phone className="w-3 h-3 text-emerald-600" />
+                      <Phone className="w-3 h-3 text-brand-600" />
                       <span>Noter un appel</span>
                     </button>
                     <button
                       onClick={() => onNavigate && onNavigate('quotes')}
-                      className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 text-[11px] font-semibold transition"
+                      className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white hover:bg-brand-50 text-slate-700 hover:text-brand-800 border border-slate-200 text-[11px] font-semibold transition"
                     >
-                      <FileText className="w-3 h-3 text-emerald-600" />
+                      <FileText className="w-3 h-3 text-brand-600" />
                       <span>Créer un devis</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Financial Potential */}
-                <div className="p-3.5 rounded-xl bg-emerald-950 text-white space-y-1">
-                  <div className="text-[10.5px] uppercase tracking-wider text-emerald-300 font-semibold">
+                <div className="p-3.5 rounded-xl bg-brand-950 text-white space-y-1">
+                  <div className="text-[10.5px] uppercase tracking-wider text-brand-300 font-semibold">
                     Enjeu commercial estimé
                   </div>
                   <div className="text-lg font-bold font-mono text-white">
                     {formatCurrency(activeThread.estimatedValue || 0)}
                   </div>
-                  <div className="text-[11px] text-emerald-200/80">
+                  <div className="text-[11px] text-brand-200/80">
                     Responsable : {activeThread.assignedTo || 'Non attribué'}
                   </div>
                 </div>
@@ -1069,7 +1149,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                               Devis • {q.date}
                             </div>
                           </div>
-                          <div className="font-mono font-semibold text-emerald-700">
+                          <div className="font-mono font-semibold text-brand-700">
                             {formatCurrency(q.totalTTC)}
                           </div>
                         </div>
@@ -1135,10 +1215,10 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
               <div className="text-xs text-slate-500 font-medium">
                 Mails Lus par le Destinataire
               </div>
-              <div className="text-2xl font-bold font-mono text-emerald-700 mt-1">
+              <div className="text-2xl font-bold font-mono text-brand-700 mt-1">
                 {scheduledEmails.filter((e) => e.status === 'ouvert').length}
               </div>
-              <div className="text-[11px] text-emerald-700 font-medium mt-1">
+              <div className="text-[11px] text-brand-700 font-medium mt-1">
                 ✓ Notification instantanée déclenchée
               </div>
             </div>
@@ -1172,7 +1252,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
               </div>
               <button
                 onClick={() => setScheduleModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-xs transition"
               >
                 <CalendarClock className="w-3.5 h-3.5" />
                 <span>Programmer un nouvel e-mail</span>
@@ -1237,13 +1317,13 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                         )}
                         {item.status === 'ouvert' && (
                           <div>
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
-                              <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-brand-50 text-brand-800 border border-brand-300">
+                              <Eye className="w-3.5 h-3.5 text-brand-600" />
                               <span>
                                 Lu • Ouvert {item.openCount || 1} fois
                               </span>
                             </span>
-                            <div className="text-[10.5px] font-mono text-emerald-700 mt-1">
+                            <div className="text-[10.5px] font-mono text-brand-700 mt-1">
                               Dernière ouverture : {item.openedAt}
                             </div>
                           </div>
@@ -1263,7 +1343,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
 
                           <button
                             onClick={() => triggerEmailOpened(item.id)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px] shadow-2xs transition"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold text-[11px] shadow-2xs transition"
                             title="Simuler l'ouverture du mail par le lecteur et déclencher la notification"
                           >
                             <Eye className="w-3 h-3" />
@@ -1298,7 +1378,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
               <div className="text-2xl font-bold font-mono text-slate-900 mt-1">
                 {callLogs.length}
               </div>
-              <div className="text-[11px] text-emerald-700 mt-1">
+              <div className="text-[11px] text-brand-700 mt-1">
                 Entrants & Sortants enregistrés
               </div>
             </div>
@@ -1306,7 +1386,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
               <div className="text-xs text-slate-500 font-medium">
                 Appels Connectés
               </div>
-              <div className="text-2xl font-bold font-mono text-emerald-700 mt-1">
+              <div className="text-2xl font-bold font-mono text-brand-700 mt-1">
                 {
                   callLogs.filter(
                     (c) => c.outcome === 'connecte' || c.outcome === 'rdv_pris'
@@ -1335,7 +1415,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
               <div className="text-sm font-bold text-slate-800 mt-1.5">
                 Numérotation +221 Active
               </div>
-              <div className="text-[11px] text-emerald-700 mt-1">
+              <div className="text-[11px] text-brand-700 mt-1">
                 Appel direct téléphone ou WhatsApp
               </div>
             </div>
@@ -1351,7 +1431,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                   value={callSearch}
                   onChange={(e) => setCallSearch(e.target.value)}
                   placeholder="Rechercher un appel, société, note..."
-                  className="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-600"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-brand-600"
                 />
               </div>
 
@@ -1367,7 +1447,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                     onClick={() => setCallOutcomeFilter(f.id)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                       callOutcomeFilter === f.id
-                        ? 'bg-emerald-600 text-white'
+                        ? 'bg-brand-600 text-white'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
@@ -1403,7 +1483,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-1.5 font-mono text-slate-800">
                           {call.direction === 'entrant' ? (
-                            <PhoneIncoming className="w-3.5 h-3.5 text-emerald-600" />
+                            <PhoneIncoming className="w-3.5 h-3.5 text-brand-600" />
                           ) : (
                             <PhoneOutgoing className="w-3.5 h-3.5 text-blue-600" />
                           )}
@@ -1430,7 +1510,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                         <div className="inline-flex items-center gap-1.5">
                           <a
                             href={`tel:${call.phone}`}
-                            className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold text-[11px] border border-emerald-200"
+                            className="px-2.5 py-1 rounded-md bg-brand-50 text-brand-700 hover:bg-brand-100 font-semibold text-[11px] border border-brand-200"
                           >
                             Appeler
                           </a>
@@ -1608,7 +1688,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                  className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold"
                 >
                   Créer la conversation
                 </button>
@@ -1738,7 +1818,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                  className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold"
                 >
                   Enregistrer l'appel
                 </button>
@@ -1752,9 +1832,9 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
       {scheduleModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-[2px] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden">
-            <div className="px-5 py-4 bg-emerald-950 text-white flex items-center justify-between">
+            <div className="px-5 py-4 bg-brand-950 text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CalendarClock className="w-4 h-4 text-emerald-400" />
+                <CalendarClock className="w-4 h-4 text-brand-400" />
                 <h3 className="text-sm font-bold">
                   Programmer un E-mail avec Notification d'Ouverture
                 </h3>
@@ -1841,10 +1921,10 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                 />
               </div>
 
-              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2.5">
+              <div className="p-3 rounded-xl bg-brand-50 border border-brand-200 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <label className="font-bold text-emerald-950 flex items-center gap-1.5">
-                    <CalendarClock className="w-4 h-4 text-emerald-700" />
+                  <label className="font-bold text-brand-950 flex items-center gap-1.5">
+                    <CalendarClock className="w-4 h-4 text-brand-700" />
                     <span>Date & Heure d'envoi programmé :</span>
                   </label>
                   <input
@@ -1857,11 +1937,11 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                         scheduledAt: e.target.value,
                       })
                     }
-                    className="px-2.5 py-1.5 bg-white border border-emerald-300 rounded-lg font-mono text-xs"
+                    className="px-2.5 py-1.5 bg-white border border-brand-300 rounded-lg font-mono text-xs"
                   />
                 </div>
 
-                <label className="flex items-center gap-2 text-emerald-900 font-semibold cursor-pointer pt-1 border-t border-emerald-200/70">
+                <label className="flex items-center gap-2 text-brand-900 font-semibold cursor-pointer pt-1 border-t border-brand-200/70">
                   <input
                     type="checkbox"
                     checked={scheduleForm.trackOpen}
@@ -1871,7 +1951,7 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                         trackOpen: e.target.checked,
                       })
                     }
-                    className="rounded text-emerald-600"
+                    className="rounded text-brand-600"
                   />
                   <span>
                     M'envoyer une notification dès que le lecteur ouvre l'e-mail
@@ -1894,13 +1974,13 @@ export function InboxView({ onNavigate, onCreateQuoteForCustomer, onOpenAiAssist
                     setScheduleModalOpen(false);
                     setActiveMode('scheduled');
                   }}
-                  className="px-3.5 py-2 rounded-lg border border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-semibold"
+                  className="px-3.5 py-2 rounded-lg border border-brand-600 text-brand-700 hover:bg-brand-50 font-semibold"
                 >
                   Envoyer maintenant (avec suivi)
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                  className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-semibold"
                 >
                   Programmer l'envoi
                 </button>

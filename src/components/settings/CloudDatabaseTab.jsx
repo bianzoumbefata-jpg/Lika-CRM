@@ -154,7 +154,7 @@ export function CloudDatabaseTab() {
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
               <Wifi className="w-5 h-5" />
             </div>
             <div>
@@ -166,7 +166,7 @@ export function CloudDatabaseTab() {
               </p>
             </div>
           </div>
-          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto">
+          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-brand-50 text-brand-700 border border-brand-200 self-start sm:self-auto">
             Actif immédiatement
           </span>
         </div>
@@ -198,7 +198,7 @@ export function CloudDatabaseTab() {
                 >
                   {copiedLan === url ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <Check className="w-3.5 h-3.5 text-brand-600" />
                       <span>Copié</span>
                     </>
                   ) : (
@@ -237,8 +237,8 @@ export function CloudDatabaseTab() {
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
             {status.enabled ? (
-              <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-brand-50 text-brand-700 border border-brand-200 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
                 Cloud Connecté
               </span>
             ) : (
@@ -294,7 +294,7 @@ export function CloudDatabaseTab() {
             >
               {copiedSql ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <Check className="w-3.5 h-3.5 text-brand-400" />
                   <span>Script SQL copié ! Collez-le dans Supabase</span>
                 </>
               ) : (
@@ -353,7 +353,7 @@ export function CloudDatabaseTab() {
 
           {status.lastSyncAt && (
             <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-brand-600" />
               <span>Dernière synchronisation en ligne : <strong>{formatDateTime(status.lastSyncAt)}</strong></span>
             </div>
           )}
@@ -362,12 +362,12 @@ export function CloudDatabaseTab() {
             <div
               className={`p-3 rounded-xl border text-xs flex items-start gap-2 ${
                 feedback.type === 'success'
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  ? 'bg-brand-50 border-brand-200 text-brand-800'
                   : 'bg-rose-50 border-rose-200 text-rose-800'
               }`}
             >
               {feedback.type === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
               ) : (
                 <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               )}

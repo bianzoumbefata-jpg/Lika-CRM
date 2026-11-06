@@ -247,9 +247,9 @@ export function ProductFormModal({ isOpen, onClose, productToEdit }) {
 
           {/* Stock Section (Only if product is matériel) */}
           {formData.type === 'produit' && (
-            <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-200/60 space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-                <Package className="w-3.5 h-3.5 text-emerald-600" /> Gestion & Emplacement du Stock
+            <div className="p-4 bg-brand-50/50 rounded-2xl border border-brand-200/60 space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-brand-800 flex items-center gap-1.5">
+                <Package className="w-3.5 h-3.5 text-brand-600" /> Gestion & Emplacement du Stock
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -339,7 +339,7 @@ export function ProductFormModal({ isOpen, onClose, productToEdit }) {
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">Marge Brute Estimée</label>
-                <div className="h-[38px] px-3 flex items-center justify-between bg-white border border-slate-200 rounded-xl text-xs font-bold text-emerald-600">
+                <div className="h-[38px] px-3 flex items-center justify-between bg-white border border-slate-200 rounded-xl text-xs font-bold text-brand-600">
                   <span>+{margin.toLocaleString('fr-FR')} {currencySymbol}</span>
                   <span>({marginPercent}%)</span>
                 </div>

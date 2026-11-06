@@ -447,7 +447,7 @@ export function QuoteEditorModal({ isOpen, onClose, quoteToEdit, initialCustomer
             <div className="text-xs space-y-1">
               <div>Total Brut HT : {formatCurrency((formData.totalHT || 0) + (formData.totalDiscount || 0), currencySymbol, currencyPosition)}</div>
               {formData.totalDiscount > 0 && (
-                <div className="text-emerald-400 font-bold">
+                <div className="text-brand-400 font-bold">
                   Remise totale : -{formatCurrency(formData.totalDiscount, currencySymbol, currencyPosition)}
                 </div>
               )}
@@ -495,7 +495,7 @@ export function QuoteEditorModal({ isOpen, onClose, quoteToEdit, initialCustomer
                   convertQuoteToInvoice(quoteToEdit.id);
                   onClose();
                 }}
-                className="px-4 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl shadow-xs transition flex items-center gap-1.5"
+                className="px-4 py-2.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 rounded-xl shadow-xs transition flex items-center gap-1.5"
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>Transformer immédiatement en Facture</span>

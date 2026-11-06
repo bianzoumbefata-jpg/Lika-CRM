@@ -35,7 +35,7 @@ export function PipelineKanbanView() {
     { id: 'qualification', title: 'Qualification', defaultProba: 20, color: 'border-slate-300 text-slate-800 bg-slate-100' },
     { id: 'proposition', title: 'Proposition / Devis', defaultProba: 50, color: 'border-blue-300 text-blue-800 bg-blue-100' },
     { id: 'negociation', title: 'Négociation', defaultProba: 80, color: 'border-amber-300 text-amber-800 bg-amber-100' },
-    { id: 'gagne', title: 'Gagnée / Signée', defaultProba: 100, color: 'border-emerald-300 text-emerald-800 bg-emerald-100' },
+    { id: 'gagne', title: 'Gagnée / Signée', defaultProba: 100, color: 'border-brand-300 text-brand-800 bg-brand-100' },
     { id: 'perdu', title: 'Perdue', defaultProba: 0, color: 'border-rose-300 text-rose-800 bg-rose-100' },
   ];
 
@@ -133,14 +133,14 @@ export function PipelineKanbanView() {
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
               Affaires Gagnées ce mois
             </span>
-            <div className="text-xl font-black text-emerald-600">
+            <div className="text-xl font-black text-brand-600">
               {opportunities.filter((o) => o.stage === 'gagne').length} deal(s)
             </div>
-            <span className="text-[10px] text-emerald-600 font-semibold mt-0.5 block">
+            <span className="text-[10px] text-brand-600 font-semibold mt-0.5 block">
               Taux de conversion global élevé
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
             <Trophy className="w-5 h-5" />
           </div>
         </div>
@@ -218,7 +218,7 @@ export function PipelineKanbanView() {
                         <span
                           className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                             opp.stage === 'gagne'
-                              ? 'bg-emerald-50 text-emerald-700'
+                              ? 'bg-brand-50 text-brand-700'
                               : opp.stage === 'perdu'
                               ? 'bg-rose-50 text-rose-700'
                               : 'bg-purple-50 text-purple-700'

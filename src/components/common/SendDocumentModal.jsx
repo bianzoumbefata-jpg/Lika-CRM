@@ -14,9 +14,16 @@ import {
   AlertCircle,
   Clock,
   Sparkles,
+  Paperclip,
+  Loader2,
+  Download,
 } from 'lucide-react';
 import { useCrm } from '../../context/CrmContext';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import { DocCaptureContext } from './DocumentSheet';
+import { QuotePdfPreview } from '../quotes/QuotePdfPreview';
+import { InvoicePdfPreview } from '../invoices/InvoicePdfPreview';
+import { elementToPdfPayload } from '../../utils/pdfExport';
 
 /**
  * Clean phone number for WhatsApp wa.me links
@@ -38,7 +45,11 @@ export function SendDocumentModal({
   documentType = 'devis', // 'devis' | 'facture'
   onOpenPdf,
 }) {
-  const { customers, settings, saveQuote, saveInvoice, saveActivity, currencySymbol, currencyPosition } = useCrm();
+  const { customers, settings, saveQuote, saveInvoice, saveActivity, currencySymbol, currencyPosition, mailStatus, sendEmail, showToast } = useCrm();
+  const mailConnected = Boolean(mailStatus?.configured);
+  const [captureReq, setCaptureReq] = useState(null); // { resolve }
+  const [busy, setBusy] = useState(null); // 'email' | 'whatsapp' | null
+  const [sendError, setSendError] = useState('');
 
   const [activeChannel, setActiveChannel] = useState('whatsapp'); // 'whatsapp' | 'email'
   const [selectedContactId, setSelectedContactId] = useState('primary');
@@ -265,30 +276,96 @@ ${senderName} - ${companyName}`);
     });
   };
 
-  // Launch WhatsApp Web or Mobile App
-  const handleSendWhatsApp = () => {
-    const cleanPhone = formatWhatsAppPhone(targetPhone);
-    if (!cleanPhone) {
-      alert('Veuillez renseigner un numéro de téléphone valide pour WhatsApp.');
-      return;
+  const pdfFilename = `${docLabel}-${document.id}.pdf`;
+
+  /** Rend le document hors écran et le convertit en vrai fichier PDF. */
+  const generatePdf = async () => {
+    const el = await new Promise((resolve) => setCaptureReq({ resolve }));
+    // Laisse le temps aux QR codes et aux polices de se charger
+    await new Promise((r) => setTimeout(r, 450));
+    try {
+      return await elementToPdfPayload(el, pdfFilename);
+    } finally {
+      setCaptureReq(null);
     }
-    const encoded = encodeURIComponent(waMessage);
-    const url = `https://wa.me/${cleanPhone}?text=${encoded}`;
-    window.open(url, '_blank');
-    markAsSent('whatsapp');
-    onClose();
   };
 
-  // Launch Email Client (mailto)
-  const handleSendEmail = () => {
-    if (!targetEmail) {
-      alert('Veuillez renseigner une adresse e-mail de destination.');
+  const downloadBlob = (blob, name) => {
+    const url = URL.createObjectURL(blob);
+    const a = window.document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  };
+
+  // WhatsApp : partage du PDF (mobile) ou PDF téléchargé + WhatsApp ouvert avec le message
+  const handleSendWhatsApp = async () => {
+    const cleanPhone = formatWhatsAppPhone(targetPhone);
+    if (!cleanPhone) {
+      setSendError('Veuillez renseigner un numéro de téléphone valide pour WhatsApp.');
       return;
     }
-    const mailto = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    window.location.href = mailto;
-    markAsSent('email');
-    onClose();
+    setSendError('');
+    setBusy('whatsapp');
+    try {
+      const pdf = await generatePdf();
+      if (pdf.file && navigator.canShare?.({ files: [pdf.file] })) {
+        try {
+          await navigator.share({ files: [pdf.file], text: waMessage, title: `${docLabel} ${document.id}` });
+          markAsSent('whatsapp');
+          onClose();
+          return;
+        } catch (err) {
+          if (err?.name === 'AbortError') return;
+        }
+      }
+      downloadBlob(pdf.blob, pdfFilename);
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMessage)}`, '_blank', 'noopener');
+      showToast?.(`PDF téléchargé : joignez « ${pdfFilename} » dans la conversation WhatsApp`, 'info');
+      markAsSent('whatsapp');
+      onClose();
+    } catch (err) {
+      setSendError(`Préparation du PDF impossible : ${err.message}`);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  // E-mail : envoi réel avec le PDF en pièce jointe (ou messagerie de l'ordinateur à défaut)
+  const handleSendEmail = async () => {
+    if (!targetEmail) {
+      setSendError('Veuillez renseigner une adresse e-mail de destination.');
+      return;
+    }
+    setSendError('');
+    if (!mailConnected) {
+      const mailto = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      window.location.href = mailto;
+      markAsSent('email');
+      onClose();
+      return;
+    }
+    setBusy('email');
+    try {
+      const pdf = await generatePdf();
+      await sendEmail({
+        to: targetEmail.trim(),
+        subject: emailSubject,
+        text: emailBody,
+        attachments: [{ filename: pdfFilename, contentBase64: pdf.base64, contentType: 'application/pdf' }],
+        companyName: customer.name || document.customerName,
+        contactName: targetName,
+        customerId: document.customerId,
+      });
+      markAsSent('email');
+      showToast?.(`${docLabel} ${document.id} envoyé à ${targetEmail} avec le PDF en pièce jointe`, 'success');
+      onClose();
+    } catch (err) {
+      setSendError(`Envoi impossible : ${err.message}`);
+    } finally {
+      setBusy(null);
+    }
   };
 
   const handleCopyWa = () => {
@@ -370,7 +447,7 @@ ${senderName} - ${companyName}`);
                       <div className="flex items-center justify-between w-full">
                         <span className="font-bold text-slate-900 truncate">{ctc.name}</span>
                         {ctc.isPrimary && (
-                          <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">
+                          <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-brand-100 text-brand-700">
                             Principal
                           </span>
                         )}
@@ -435,7 +512,7 @@ ${senderName} - ${companyName}`);
                     </span>
                   </label>
                   {isPhoneValid ? (
-                    <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                    <span className="text-[10px] text-brand-600 font-bold flex items-center gap-1">
                       <Check className="w-3 h-3" /> Numéro valide ({formatWhatsAppPhone(targetPhone)})
                     </span>
                   ) : (
@@ -463,7 +540,7 @@ ${senderName} - ${companyName}`);
                     onClick={handleCopyWa}
                     className="text-[11px] text-slate-500 hover:text-slate-800 font-semibold flex items-center gap-1"
                   >
-                    {copiedWa ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                    {copiedWa ? <Check className="w-3 h-3 text-brand-600" /> : <Copy className="w-3 h-3" />}
                     <span>{copiedWa ? 'Copié !' : 'Copier le texte'}</span>
                   </button>
                 </div>
@@ -486,7 +563,7 @@ ${senderName} - ${companyName}`);
                     Adresse E-mail du destinataire
                   </label>
                   {isEmailValid ? (
-                    <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                    <span className="text-[10px] text-brand-600 font-bold flex items-center gap-1">
                       <Check className="w-3 h-3" /> E-mail valide
                     </span>
                   ) : (
@@ -526,7 +603,7 @@ ${senderName} - ${companyName}`);
                     onClick={handleCopyEmail}
                     className="text-[11px] text-slate-500 hover:text-slate-800 font-semibold flex items-center gap-1"
                   >
-                    {copiedEmail ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                    {copiedEmail ? <Check className="w-3 h-3 text-brand-600" /> : <Copy className="w-3 h-3" />}
                     <span>{copiedEmail ? 'Copié !' : 'Copier le texte'}</span>
                   </button>
                 </div>
@@ -540,6 +617,38 @@ ${senderName} - ${companyName}`);
             </div>
           )}
         </div>
+
+        {/* Pièce jointe & erreurs */}
+        <div className="px-6 pb-3 space-y-2">
+          <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-[12px] text-slate-700">
+            <Paperclip className="w-4 h-4 text-brand-600 shrink-0" />
+            <span className="font-semibold truncate">{pdfFilename}</span>
+            <span className="text-slate-500 truncate">
+              {activeChannel === 'email'
+                ? mailConnected
+                  ? `— joint automatiquement, envoyé depuis ${mailStatus.email}`
+                  : '— boîte non connectée : votre messagerie s’ouvrira sans pièce jointe'
+                : '— partagé sur mobile, ou téléchargé pour le joindre dans WhatsApp'}
+            </span>
+          </div>
+          {sendError && (
+            <div role="alert" className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-[12px] flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{sendError}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Rendu hors écran pour générer le PDF */}
+        {captureReq && (
+          <DocCaptureContext.Provider value={{ onReady: (el) => captureReq.resolve(el) }}>
+            {isQuote ? (
+              <QuotePdfPreview isOpen onClose={() => {}} quote={document} />
+            ) : (
+              <InvoicePdfPreview isOpen onClose={() => {}} invoice={document} />
+            )}
+          </DocCaptureContext.Provider>
+        )}
 
         {/* Modal Footer Actions */}
         <div className="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -572,31 +681,33 @@ ${senderName} - ${companyName}`);
               <button
                 type="button"
                 onClick={handleSendWhatsApp}
-                disabled={!isPhoneValid}
+                disabled={!isPhoneValid || Boolean(busy)}
                 className={`flex-1 sm:flex-none px-5 py-2 text-xs font-bold text-white rounded-xl shadow-sm transition flex items-center justify-center gap-2 ${
                   isPhoneValid
                     ? 'bg-[#25D366] hover:bg-[#20ba59] active:scale-95'
                     : 'bg-slate-300 cursor-not-allowed text-slate-500'
                 }`}
               >
-                <Smartphone className="w-4 h-4" />
-                <span>Ouvrir dans WhatsApp</span>
+                {busy === 'whatsapp' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Smartphone className="w-4 h-4" />}
+                <span>{busy === 'whatsapp' ? 'Préparation du PDF…' : 'Envoyer sur WhatsApp + PDF'}</span>
                 <ExternalLink className="w-3 h-3 opacity-80" />
               </button>
             ) : (
               <button
                 type="button"
                 onClick={handleSendEmail}
-                disabled={!isEmailValid}
+                disabled={!isEmailValid || Boolean(busy)}
                 className={`flex-1 sm:flex-none px-5 py-2 text-xs font-bold text-white rounded-xl shadow-sm transition flex items-center justify-center gap-2 ${
                   isEmailValid
                     ? 'bg-brand-600 hover:bg-brand-700 active:scale-95'
                     : 'bg-slate-300 cursor-not-allowed text-slate-500'
                 }`}
               >
-                <Mail className="w-4 h-4" />
-                <span>Ouvrir dans mon E-mail</span>
-                <ExternalLink className="w-3 h-3 opacity-80" />
+                {busy === 'email' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+                <span>
+                  {busy === 'email' ? 'Envoi en cours…' : mailConnected ? "Envoyer l'e-mail + PDF" : 'Ouvrir dans ma messagerie'}
+                </span>
+                {!mailConnected && <ExternalLink className="w-3 h-3 opacity-80" />}
               </button>
             )}
           </div>

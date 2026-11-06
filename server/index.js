@@ -5,6 +5,8 @@ import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { initialData } from './initialData.js';
+import { createAiService, registerAiRoutes } from './ai.js';
+import { createMailService, registerMailRoutes } from './mail.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -196,6 +198,12 @@ app.post('/api/save', (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// API: Assistant IA (clé stockée côté serveur dans data/ai_config.json)
+registerAiRoutes(app, createAiService({ configFile: path.resolve(dataDir, 'ai_config.json') }));
+
+// API: Messagerie (IMAP/SMTP) — identifiants dans data/mail_config.json
+registerMailRoutes(app, createMailService({ configFile: path.resolve(dataDir, 'mail_config.json') }));
 
 // API: Cloud status & LAN URLs
 app.get('/api/cloud-status', (req, res) => {

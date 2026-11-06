@@ -716,7 +716,7 @@
       "totalTTC": 3072248,
       "notes": "Bon pour accord reçu et visé par M. Cheikh Tidiane Diagne.",
       "terms": "Règlement sous 30 jours fin de mois par virement bancaire CBAO.",
-      "convertedToInvoiceId": null,
+      "convertedToInvoiceId": "FAC-2026-0007",
       "createdAt": "2026-10-05T08:00:00Z"
     },
     {
@@ -753,6 +753,167 @@
     }
   ],
   "invoices": [
+    {
+      "id": "FAC-2026-0007",
+      "type": "facture",
+      "quoteId": "DEV-2026-0002",
+      "originalInvoiceId": null,
+      "customerId": "CLI-002",
+      "customerName": "Transatlantique Logistique & Portuaire",
+      "date": "2026-11-06",
+      "dueDate": "2026-12-06",
+      "status": "envoyee",
+      "items": [
+        {
+          "id": "INV-ITM-1793926584434-0",
+          "productId": "PRD-001",
+          "reference": "HW-DELL-I7",
+          "description": "Ordinateur Professionnel Dell Optiplex Core i7 (Postes douane et quai)",
+          "quantity": 4,
+          "unit": "unité",
+          "unitPriceHT": 520000,
+          "discountPercent": 8,
+          "vatRate": 18,
+          "totalHT": 1913600,
+          "totalTTC": 2258048
+        },
+        {
+          "id": "INV-ITM-1793926584434-1",
+          "productId": "SRV-001",
+          "reference": "LIC-CRM-ENT",
+          "description": "Licence OpenFlex CRM Enterprise (Annuelle) avec module portuaire",
+          "quantity": 1,
+          "unit": "licence",
+          "unitPriceHT": 750000,
+          "discountPercent": 8,
+          "vatRate": 18,
+          "totalHT": 690000,
+          "totalTTC": 814200
+        }
+      ],
+      "discountGlobalPercent": 0,
+      "totalHT": 2603600,
+      "totalDiscount": 226400,
+      "totalVAT": 468648,
+      "totalTTC": 3072248,
+      "paidAmount": 0,
+      "remainingAmount": 3072248,
+      "payments": [],
+      "isRecurring": false,
+      "recurringFrequency": null,
+      "reminderHistory": [],
+      "notes": "Facture issue de la conversion du devis DEV-2026-0002. Bon pour accord reçu et visé par M. Cheikh Tidiane Diagne.",
+      "terms": "Règlement sous 30 jours fin de mois par virement bancaire CBAO.",
+      "createdAt": "2026-11-06T00:56:24.434Z",
+      "stampType": "paye_non_livre",
+      "stampedAt": "2026-11-06"
+    },
+    {
+      "id": "FAC-2026-0006",
+      "type": "facture",
+      "quoteId": "DEV-2026-0002",
+      "originalInvoiceId": null,
+      "customerId": "CLI-002",
+      "customerName": "Transatlantique Logistique & Portuaire",
+      "date": "2026-11-06",
+      "dueDate": "2026-12-06",
+      "status": "envoyee",
+      "items": [
+        {
+          "id": "INV-ITM-1793926584328-0",
+          "productId": "PRD-001",
+          "reference": "HW-DELL-I7",
+          "description": "Ordinateur Professionnel Dell Optiplex Core i7 (Postes douane et quai)",
+          "quantity": 4,
+          "unit": "unité",
+          "unitPriceHT": 520000,
+          "discountPercent": 8,
+          "vatRate": 18,
+          "totalHT": 1913600,
+          "totalTTC": 2258048
+        },
+        {
+          "id": "INV-ITM-1793926584328-1",
+          "productId": "SRV-001",
+          "reference": "LIC-CRM-ENT",
+          "description": "Licence OpenFlex CRM Enterprise (Annuelle) avec module portuaire",
+          "quantity": 1,
+          "unit": "licence",
+          "unitPriceHT": 750000,
+          "discountPercent": 8,
+          "vatRate": 18,
+          "totalHT": 690000,
+          "totalTTC": 814200
+        }
+      ],
+      "discountGlobalPercent": 0,
+      "totalHT": 2603600,
+      "totalDiscount": 226400,
+      "totalVAT": 468648,
+      "totalTTC": 3072248,
+      "paidAmount": 0,
+      "remainingAmount": 3072248,
+      "payments": [],
+      "isRecurring": false,
+      "recurringFrequency": null,
+      "reminderHistory": [],
+      "notes": "Facture issue de la conversion du devis DEV-2026-0002. Bon pour accord reçu et visé par M. Cheikh Tidiane Diagne.",
+      "terms": "Règlement sous 30 jours fin de mois par virement bancaire CBAO.",
+      "createdAt": "2026-11-06T00:56:24.328Z"
+    },
+    {
+      "id": "FAC-2026-0005",
+      "type": "facture",
+      "quoteId": "DEV-2026-0002",
+      "originalInvoiceId": null,
+      "customerId": "CLI-002",
+      "customerName": "Transatlantique Logistique & Portuaire",
+      "date": "2026-11-06",
+      "dueDate": "2026-12-06",
+      "status": "envoyee",
+      "items": [
+        {
+          "id": "INV-ITM-1793926583470-0",
+          "productId": "PRD-001",
+          "reference": "HW-DELL-I7",
+          "description": "Ordinateur Professionnel Dell Optiplex Core i7 (Postes douane et quai)",
+          "quantity": 4,
+          "unit": "unité",
+          "unitPriceHT": 520000,
+          "discountPercent": 8,
+          "vatRate": 18,
+          "totalHT": 1913600,
+          "totalTTC": 2258048
+        },
+        {
+          "id": "INV-ITM-1793926583470-1",
+          "productId": "SRV-001",
+          "reference": "LIC-CRM-ENT",
+          "description": "Licence OpenFlex CRM Enterprise (Annuelle) avec module portuaire",
+          "quantity": 1,
+          "unit": "licence",
+          "unitPriceHT": 750000,
+          "discountPercent": 8,
+          "vatRate": 18,
+          "totalHT": 690000,
+          "totalTTC": 814200
+        }
+      ],
+      "discountGlobalPercent": 0,
+      "totalHT": 2603600,
+      "totalDiscount": 226400,
+      "totalVAT": 468648,
+      "totalTTC": 3072248,
+      "paidAmount": 0,
+      "remainingAmount": 3072248,
+      "payments": [],
+      "isRecurring": false,
+      "recurringFrequency": null,
+      "reminderHistory": [],
+      "notes": "Facture issue de la conversion du devis DEV-2026-0002. Bon pour accord reçu et visé par M. Cheikh Tidiane Diagne.",
+      "terms": "Règlement sous 30 jours fin de mois par virement bancaire CBAO.",
+      "createdAt": "2026-11-06T00:56:23.470Z"
+    },
     {
       "type": "facture",
       "customerId": "CLI-001",
@@ -798,8 +959,8 @@
       "totalTTC": 582920,
       "id": "FAC-2026-0004",
       "createdAt": "2026-10-28T17:16:43.799Z",
-      "stampType": "paye",
-      "stampedAt": "2026-10-28"
+      "stampType": "paye_non_livre",
+      "stampedAt": "2026-11-06"
     },
     {
       "id": "FAC-2026-0001",
@@ -1228,6 +1389,21 @@
       "name": "Campagne Prospection PME Dakar — Novembre 2026",
       "channel": "email",
       "targetSegment": "tous",
+      "subject": "Digitalisez votre facturation OHADA et vos stocks en FCFA avec OpenFlex Sénégal",
+      "content": "Bonjour {contact},\n\nDans le cadre du développement des entreprises à {ville}, OpenFlex Sénégal accompagne les PME et commerces avec une solution clé en main de Gestion Commerciale, Facturation et Stock adaptée aux réalités du Sénégal :\n\n• Devis, Factures TVA 18%, Bordereaux de Livraison (BL) et Reçus de Paiement officiels A4\n• Intégration native des QR Codes Wave Sénégal & Orange Money sur vos factures\n• Suivi en temps réel des stocks multi-dépôts et alertes de réapprovisionnement\n• Accès en ligne sécurisé sur ordinateur, tablette et téléphone\n\nSeriez-vous disponible cette semaine pour une démonstration rapide de 15 minutes (en ligne ou dans vos locaux à {ville}) ?\n\nBien cordialement,\nL'équipe Commerciale — OpenFlex Sénégal {contact} {nom_entreprise} {ville}",
+      "status": "envoyee",
+      "sentDate": "2026-11-06",
+      "recipientsCount": 12,
+      "openRate": 62,
+      "clickRate": 26,
+      "leadsGenerated": 3,
+      "revenueGenerated": 0,
+      "id": "CMP-2026-006"
+    },
+    {
+      "name": "Campagne Prospection PME Dakar — Novembre 2026",
+      "channel": "email",
+      "targetSegment": "tous",
       "subject": "Offre Privilège : -15% sur votre équipement informatique & licences OpenFlex",
       "content": "Bonjour {contact},\n\nÀ l'occasion de la clôture budgétaire annuelle, OpenFlex Sénégal accorde une remise exceptionnelle de 15% sur :\n- Les Licences annuelles OpenFlex CRM & ERP Cloud\n- Les Packs Caisses Tactiles, Imprimantes Thermiques et Postes Dell Optiplex Core i7\n- Les Contrats d'Infogérance et Maintenance Réactive 24/7\n\nCette offre est valable pour toute commande confirmée avant la fin du mois.\nRépondez simplement à ce message pour réserver votre tarif préférentiel.\n\nCordialement,\nLa Direction Commerciale — OpenFlex Sénégal",
       "status": "envoyee",
@@ -1291,12 +1467,12 @@
       "targetSegment": "leads_chauds",
       "subject": "Offre Privilège Novembre : -15% sur votre déploiement ERP & Matériel Dell/HP",
       "content": "Bonjour {contact},\n\nSuite à nos récents échanges concernant le projet d'équipement de {nom_entreprise}, nous avons le plaisir de vous réserver une remise exceptionnelle de 15% pour toute commande validée avant le 30 novembre 2026.\n\nNotre équipe technique à Dakar assure l'installation sur site, le paramétrage réseau et la formation complète de vos équipes.\n\nSouhaitez-vous recevoir votre devis personnalisé cette semaine ?\n\nBien cordialement,\nDirection Commerciale OpenFlex Sénégal",
-      "status": "planifiee",
-      "sentDate": "2026-11-02",
-      "recipientsCount": 24,
-      "openRate": 0,
-      "clickRate": 0,
-      "leadsGenerated": 0,
+      "status": "envoyee",
+      "sentDate": "2026-11-06",
+      "recipientsCount": 12,
+      "openRate": 58,
+      "clickRate": 24,
+      "leadsGenerated": 2,
       "revenueGenerated": 0
     }
   ],
@@ -1342,7 +1518,8 @@
           "type": "message",
           "body": "Nous restons dans l'attente de votre confirmation pour intégrer le dossier au comité d'engagement de demain matin 10h00."
         }
-      ]
+      ],
+      "lastReadReceiptAt": "2026-11-06 00:54"
     },
     {
       "id": "MSG-2026-002",
@@ -1423,7 +1600,8 @@
           "type": "message",
           "body": "Bonjour,\n\nSuite à votre relance concernant la facture FAC-2026-0003 de 191 160 FCFA, nous procédons au règlement par Wave Business cet après-midi. Merci de nous faire parvenir le Reçu de Paiement avec cachet « FACTURE PAYÉE » dès réception."
         }
-      ]
+      ],
+      "lastReadReceiptAt": "2026-11-06 01:19"
     },
     {
       "id": "MSG-2026-005",
@@ -1578,7 +1756,7 @@
         "Créer une tâche d'appel de qualification à J+1 dans l'Agenda"
       ],
       "active": true,
-      "runsCount": 43,
+      "runsCount": 45,
       "conversionRate": "34%",
       "lastRun": "À l'instant (Exécution manuelle)"
     },
@@ -1607,7 +1785,7 @@
         "Envoyer l'e-mail de relance courtoise avec QR Code Wave & Orange Money",
         "Inscrire la relance dans l'historique officiel de la facture"
       ],
-      "active": false,
+      "active": true,
       "runsCount": 19,
       "conversionRate": "72%",
       "lastRun": "À l'instant (Exécution manuelle)"
@@ -1623,12 +1801,92 @@
         "Générer le Reçu de Paiement (Quittance) prêt à envoyer sur WhatsApp"
       ],
       "active": true,
-      "runsCount": 65,
+      "runsCount": 66,
       "conversionRate": "100%",
       "lastRun": "À l'instant (Exécution manuelle)"
     }
   ],
   "scheduledEmails": [
+    {
+      "id": "SCH-2026-014",
+      "trackingId": "TRK-85DXZ",
+      "recipientCompany": "BOA SENEGAL",
+      "recipientName": "Direction des Opérations — Bank of Africa",
+      "recipientEmail": "operations.dakar@boasenegal.com",
+      "subject": "Devis Proforma & Disponibilité Équipement — OpenFlex Sénégal",
+      "body": "Bonjour,\n\nVeuillez trouver ci-joint notre proposition commerciale conforme aux normes OHADA (TVA 18%).\n\nDès validation de votre bon pour accord, nous lançons la livraison.\n\nCordialement,",
+      "scheduledAt": "2026-11-06T19:00",
+      "sentAt": "2026-11-06 01:14",
+      "status": "envoye",
+      "trackOpen": true,
+      "openedAt": null,
+      "openCount": 0,
+      "createdBy": "Mamadou Lamine Diop"
+    },
+    {
+      "id": "SCH-2026-013",
+      "trackingId": "TRK-OUGCU",
+      "recipientCompany": "BOA SENEGAL",
+      "recipientName": "BOA SENEGAL",
+      "recipientEmail": "operations.dakar@boasenegal.com",
+      "subject": "Suivi de notre proposition — équipement des agences de Dakar",
+      "body": "Bonjour,\n\nSuite à nos récents échanges concernant le déploiement des postes de travail et imprimantes guichet pour vos agences de Dakar Plateau et Almadies, nous vous confirmons la disponibilité immédiate des équipements.\n\nNotre devis proforma inclut la TVA 18 % conforme OHADA ainsi que nos références bancaires et notre NINEA.\n\nSouhaitez-vous que nous réservions le lot dès aujourd'hui ?\n\nBien cordialement,\nDirection Commerciale — OpenFlex Sénégal",
+      "scheduledAt": "2026-11-06T18:53",
+      "sentAt": "2026-11-06 00:54",
+      "status": "ouvert",
+      "trackOpen": true,
+      "openedAt": "2026-11-06 00:54",
+      "openCount": 1,
+      "createdBy": "Mamadou Lamine Diop"
+    },
+    {
+      "id": "SCH-2026-012",
+      "trackingId": "TRK-TX56V",
+      "recipientCompany": "Clinique Médicale de la Madeleine",
+      "recipientName": "Service comptabilité — Clinique Médicale de la Madeleine",
+      "recipientEmail": "direction@clinique-madeleine.sn",
+      "subject": "Rappel d'échéance — facture FAC-2026-0003 (191 160 FCFA)",
+      "body": "Bonjour,\n\nSauf erreur de notre part, la facture FAC-2026-0003 d'un montant de 191 160 FCFA TTC reste en attente de règlement.\n\nVous pouvez la régler par Wave Business, Orange Money ou virement bancaire. Votre reçu officiel vous sera transmis dès réception.\n\nCordialement,\nService comptabilité — OpenFlex Sénégal",
+      "scheduledAt": "2026-11-07T09:00",
+      "sentAt": null,
+      "status": "programme",
+      "trackOpen": true,
+      "openedAt": null,
+      "openCount": 0,
+      "createdBy": "Mamadou Lamine Diop"
+    },
+    {
+      "id": "SCH-2026-011",
+      "trackingId": "TRK-1DI89",
+      "recipientCompany": "BOA SENEGAL",
+      "recipientName": "BOA SENEGAL",
+      "recipientEmail": "operations.dakar@boasenegal.com",
+      "subject": "Suivi de notre proposition commerciale — BOA SENEGAL",
+      "body": "Bonjour,\n\nSuite à l'envoi de notre offre pour BOA SENEGAL, nous vous confirmons la disponibilité immédiate des équipements (TVA 18 % OHADA incluse).\n\nDès réception de votre bon pour accord, nous planifions la livraison avec bordereau officiel sous 24 h.\n\nNous vous prions d'agréer l'expression de notre considération distinguée.\n\nL'équipe commerciale — OpenFlex Sénégal",
+      "scheduledAt": "2026-11-06T18:11",
+      "sentAt": null,
+      "status": "programme",
+      "trackOpen": true,
+      "openedAt": null,
+      "openCount": 0,
+      "createdBy": "Mamadou Lamine Diop"
+    },
+    {
+      "id": "SCH-2026-010",
+      "trackingId": "TRK-2ZG8R",
+      "recipientCompany": "Clinique Médicale de la Madeleine",
+      "recipientName": "Service comptabilité — Clinique Médicale de la Madeleine",
+      "recipientEmail": "direction@clinique-madeleine.sn",
+      "subject": "Rappel d'échéance — facture FAC-2026-0003 (191 160 FCFA)",
+      "body": "Bonjour,\n\nSauf erreur de notre part, la facture FAC-2026-0003 d'un montant de 191 160 FCFA TTC reste en attente de règlement.\n\nVous pouvez la régler par Wave Business, Orange Money ou virement bancaire. Votre reçu officiel vous sera transmis dès réception.\n\nCordialement,\nService comptabilité — OpenFlex Sénégal",
+      "scheduledAt": "2026-11-07T09:00",
+      "sentAt": null,
+      "status": "programme",
+      "trackOpen": true,
+      "openedAt": null,
+      "openCount": 0,
+      "createdBy": "Mamadou Lamine Diop"
+    },
     {
       "id": "SCH-2026-009",
       "trackingId": "TRK-86EF9",
@@ -1638,11 +1896,11 @@
       "subject": "Suivi Proposition Équipement 12 Agences Dakar — OpenFlex Sénégal (OHADA)",
       "body": "Bonjour Direction des Opérations BOA SENEGAL,\n\nSuite à nos récents échanges concernant le déploiement des 12 postes de travail et imprimantes thermiques guichet pour vos agences de Dakar Plateau et Almadies, nous vous confirmons la disponibilité immédiate des équipements en stock à notre dépôt principal.\n\nNotre devis proforma inclut la TVA 18% conforme aux normes OHADA ainsi que nos références bancaires CBAO / BOA et notre NINEA pour faciliter votre comité d'engagement.\n\nSouhaitez-vous que nous bloquions le lot matériel dès aujourd'hui ?\n\nBien cordialement,\nDirection Commerciale — OpenFlex Sénégal",
       "scheduledAt": "2026-10-29T14:31",
-      "sentAt": null,
-      "status": "programme",
+      "sentAt": "2026-11-03 11:04",
+      "status": "ouvert",
       "trackOpen": true,
-      "openedAt": null,
-      "openCount": 0,
+      "openedAt": "2026-11-06 00:19",
+      "openCount": 1,
       "createdBy": "Mamadou Lamine Diop"
     },
     {
@@ -1654,11 +1912,11 @@
       "subject": "Rappel d'échéance Facture FAC-2026-0003 (191 160 FCFA) — Règlement Wave / CBAO",
       "body": "Bonjour,\n\nSauf erreur ou omission de notre part, la facture FAC-2026-0003 d'un montant de 191 160 FCFA TTC demeure en attente de règlement.\n\nVous pouvez la régulariser instantanément par Wave Business, Orange Money ou virement CBAO. Votre Reçu de Paiement officiel avec cachet numérique « FACTURE PAYÉE » vous sera transmis dès réception.\n\nCordialement,\nService Comptabilité — OpenFlex Sénégal",
       "scheduledAt": "2026-10-29T09:00",
-      "sentAt": null,
-      "status": "programme",
+      "sentAt": "2026-10-29 09:04",
+      "status": "ouvert",
       "trackOpen": true,
-      "openedAt": null,
-      "openCount": 0,
+      "openedAt": "2026-11-06 00:19",
+      "openCount": 1,
       "createdBy": "Mamadou Lamine Diop"
     },
     {
@@ -1670,11 +1928,11 @@
       "subject": "Rappel d'échéance Facture FAC-2026-0003 (191 160 FCFA) — Règlement Wave / CBAO",
       "body": "Bonjour,\n\nSauf erreur ou omission de notre part, la facture FAC-2026-0003 d'un montant de 191 160 FCFA TTC demeure en attente de règlement.\n\nVous pouvez la régulariser instantanément par Wave Business, Orange Money ou virement CBAO. Votre Reçu de Paiement officiel avec cachet numérique « FACTURE PAYÉE » vous sera transmis dès réception.\n\nCordialement,\nService Comptabilité — OpenFlex Sénégal",
       "scheduledAt": "2026-10-29T09:00",
-      "sentAt": null,
-      "status": "programme",
+      "sentAt": "2026-10-29 09:04",
+      "status": "ouvert",
       "trackOpen": true,
-      "openedAt": null,
-      "openCount": 0,
+      "openedAt": "2026-11-06 00:19",
+      "openCount": 1,
       "createdBy": "Mamadou Lamine Diop"
     },
     {
@@ -1686,8 +1944,8 @@
       "subject": "Rappel d'échéance Facture FAC-2026-0003 (191 160 FCFA) — Règlement Wave / CBAO",
       "body": "Bonjour,\n\nSauf erreur ou omission de notre part, la facture FAC-2026-0003 d'un montant de 191 160 FCFA TTC demeure en attente de règlement.\n\nVous pouvez la régulariser instantanément par Wave Business, Orange Money ou virement CBAO. Votre Reçu de Paiement officiel avec cachet numérique « FACTURE PAYÉE » vous sera transmis dès réception.\n\nCordialement,\nService Comptabilité — OpenFlex Sénégal",
       "scheduledAt": "2026-10-29T09:00",
-      "sentAt": null,
-      "status": "programme",
+      "sentAt": "2026-10-29 09:04",
+      "status": "envoye",
       "trackOpen": true,
       "openedAt": null,
       "openCount": 0,
@@ -1702,11 +1960,11 @@
       "subject": "Rappel d'échéance Facture FAC-2026-0003 (191 160 FCFA) — Règlement Wave / CBAO",
       "body": "Bonjour,\n\nSauf erreur ou omission de notre part, la facture FAC-2026-0003 d'un montant de 191 160 FCFA TTC demeure en attente de règlement.\n\nVous pouvez la régulariser instantanément par Wave Business, Orange Money ou virement CBAO. Votre Reçu de Paiement officiel avec cachet numérique « FACTURE PAYÉE » vous sera transmis dès réception.\n\nCordialement,\nService Comptabilité — OpenFlex Sénégal",
       "scheduledAt": "2026-10-29T09:00",
-      "sentAt": null,
-      "status": "programme",
+      "sentAt": "2026-10-29 09:04",
+      "status": "ouvert",
       "trackOpen": true,
-      "openedAt": null,
-      "openCount": 0,
+      "openedAt": "2026-11-06 01:19",
+      "openCount": 1,
       "createdBy": "Mamadou Lamine Diop"
     },
     {
@@ -1718,8 +1976,8 @@
       "subject": "Rappel d'échéance Facture FAC-2026-0003 (191 160 FCFA) — Règlement Wave / CBAO",
       "body": "Bonjour,\n\nSauf erreur ou omission de notre part, la facture FAC-2026-0003 d'un montant de 191 160 FCFA TTC demeure en attente de règlement.\n\nVous pouvez la régulariser instantanément par Wave Business, Orange Money ou virement CBAO. Votre Reçu de Paiement officiel avec cachet numérique « FACTURE PAYÉE » vous sera transmis dès réception.\n\nCordialement,\nService Comptabilité — OpenFlex Sénégal",
       "scheduledAt": "2026-10-29T09:00",
-      "sentAt": null,
-      "status": "programme",
+      "sentAt": "2026-10-29 09:04",
+      "status": "envoye",
       "trackOpen": true,
       "openedAt": null,
       "openCount": 0,
@@ -1766,8 +2024,8 @@
       "subject": "Suivi Proposition Informatisation 5 Agences Sédima (DEV-2026-0001)",
       "body": "Bonjour M. Ndao,\n\nEn préparation de notre visite technique au siège de Thiès, nous vous transmettons le plan de déploiement réseau et synchronisation Cloud pour vos 5 agences.\n\nCordialement,\nAminata Fatou Ndiaye — OpenFlex Sénégal",
       "scheduledAt": "2026-10-29T09:00",
-      "sentAt": null,
-      "status": "programme",
+      "sentAt": "2026-10-29 09:04",
+      "status": "envoye",
       "trackOpen": true,
       "openedAt": null,
       "openCount": 0,
@@ -1775,6 +2033,66 @@
     }
   ],
   "readNotifications": [
+    {
+      "id": "NOTIF-1793927991498",
+      "type": "email_opened",
+      "emailId": "SCH-2026-005",
+      "recipientCompany": "Clinique Médicale de la Madeleine",
+      "recipientName": "Service Comptabilité — Clinique Médicale de la Madeleine",
+      "recipientEmail": "compta@clinique-madeleine.sn",
+      "subject": "Rappel d'échéance Facture FAC-2026-0003 (191 160 FCFA) — Règlement Wave / CBAO",
+      "openedAt": "2026-11-06 01:19",
+      "openCount": 1,
+      "unread": false
+    },
+    {
+      "id": "NOTIF-1793926470901",
+      "type": "email_opened",
+      "emailId": "SCH-2026-013",
+      "recipientCompany": "BOA SENEGAL",
+      "recipientName": "BOA SENEGAL",
+      "recipientEmail": "operations.dakar@boasenegal.com",
+      "subject": "Suivi de notre proposition — équipement des agences de Dakar",
+      "openedAt": "2026-11-06 00:54",
+      "openCount": 1,
+      "unread": false
+    },
+    {
+      "id": "NOTIF-1793924375933",
+      "type": "email_opened",
+      "emailId": "SCH-2026-007",
+      "recipientCompany": "Clinique Médicale de la Madeleine",
+      "recipientName": "Service Comptabilité — Clinique Médicale de la Madeleine",
+      "recipientEmail": "compta@clinique-madeleine.sn",
+      "subject": "Rappel d'échéance Facture FAC-2026-0003 (191 160 FCFA) — Règlement Wave / CBAO",
+      "openedAt": "2026-11-06 00:19",
+      "openCount": 1,
+      "unread": false
+    },
+    {
+      "id": "NOTIF-1793924374904",
+      "type": "email_opened",
+      "emailId": "SCH-2026-008",
+      "recipientCompany": "Clinique Médicale de la Madeleine",
+      "recipientName": "Service Comptabilité — Clinique Médicale de la Madeleine",
+      "recipientEmail": "compta@clinique-madeleine.sn",
+      "subject": "Rappel d'échéance Facture FAC-2026-0003 (191 160 FCFA) — Règlement Wave / CBAO",
+      "openedAt": "2026-11-06 00:19",
+      "openCount": 1,
+      "unread": false
+    },
+    {
+      "id": "NOTIF-1793924373233",
+      "type": "email_opened",
+      "emailId": "SCH-2026-009",
+      "recipientCompany": "BOA SENEGAL",
+      "recipientName": "BOA SENEGAL",
+      "recipientEmail": "operations.dakar@boasenegal.com",
+      "subject": "Suivi Proposition Équipement 12 Agences Dakar — OpenFlex Sénégal (OHADA)",
+      "openedAt": "2026-11-06 00:19",
+      "openCount": 1,
+      "unread": false
+    },
     {
       "id": "NOTIF-INIT-1",
       "type": "email_opened",
@@ -1785,7 +2103,7 @@
       "subject": "Devis Proforma Équipement 12 Agences Dakar + RIB CBAO & NINEA",
       "openedAt": "2026-10-28 16:42",
       "openCount": 3,
-      "unread": true
+      "unread": false
     }
   ]
 }

@@ -7,13 +7,13 @@ export function NotificationToast() {
   if (!toast) return null;
 
   const icons = {
-    success: <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />,
+    success: <CheckCircle2 className="w-5 h-5 text-brand-500 shrink-0" />,
     error: <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />,
     info: <Info className="w-5 h-5 text-blue-500 shrink-0" />,
   };
 
   const bgStyles = {
-    success: 'bg-emerald-50 border-emerald-200 text-emerald-900',
+    success: 'bg-brand-50 border-brand-200 text-brand-900',
     error: 'bg-rose-50 border-rose-200 text-rose-900',
     info: 'bg-blue-50 border-blue-200 text-blue-900',
   };

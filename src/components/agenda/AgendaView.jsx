@@ -43,7 +43,7 @@ export function AgendaView() {
   const icons = {
     appel: <Phone className="w-4 h-4 text-blue-600" />,
     email: <Mail className="w-4 h-4 text-purple-600" />,
-    reunion: <Users className="w-4 h-4 text-emerald-600" />,
+    reunion: <Users className="w-4 h-4 text-brand-600" />,
     relance: <Clock className="w-4 h-4 text-rose-600" />,
     intervention: <Wrench className="w-4 h-4 text-amber-600" />,
     note: <FileText className="w-4 h-4 text-slate-600" />,
@@ -124,7 +124,7 @@ export function AgendaView() {
           <button
             onClick={() => setFilterType('reunion')}
             className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap ${
-              filterType === 'reunion' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+              filterType === 'reunion' ? 'bg-brand-600 text-white' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Rendez-vous

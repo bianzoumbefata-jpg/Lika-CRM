@@ -1,31 +1,72 @@
+@import './theme-dark.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ==========================================================================
-   DESIGN SYSTEM : FINTECH & COMPTABILITÉ OHADA (IBM Plex Sans + JetBrains Mono)
+   DESIGN SYSTEM LIKA CRM — inspiré de « CentralFlow CRM »
+   Surfaces profondes, accent violet électrique, grands rayons, pastilles.
+   Police : Manrope (titres + texte) • JetBrains Mono (montants, références)
    ========================================================================== */
 :root {
-  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-display: 'Manrope', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Fintech Emerald & Institutional Slate (Banque / OHADA Swiss Style) */
-  --brand-50: 236 253 245;
-  --brand-100: 209 250 229;
-  --brand-200: 167 243 208;
-  --brand-300: 110 231 183;
-  --brand-400: 52 211 153;
-  --brand-500: 16 185 129;
-  --brand-600: 5 150 105;
-  --brand-700: 4 120 87;
-  --brand-800: 6 95 70;
-  --brand-900: 6 78 59;
-  --brand-950: 2 44 34;
+  /* Violet électrique (accent principal) */
+  --brand-50: 244 242 255;
+  --brand-100: 235 231 255;
+  --brand-200: 216 208 255;
+  --brand-300: 186 172 255;
+  --brand-400: 155 135 255;
+  --brand-500: 124 92 255;
+  --brand-600: 106 72 240;
+  --brand-700: 88 56 210;
+  --brand-800: 72 46 170;
+  --brand-900: 58 38 135;
+  --brand-950: 34 22 82;
 
-  --surface-bg: #f4f7f6;
-  --sidebar-bg: #07120f;
-  --card-radius: 0.5rem;
+  /* Dégradé signature (cartes mises en avant) */
+  --accent-gradient: linear-gradient(135deg, #ff8a4c 0%, #f2557a 45%, #7c5cff 100%);
+
+  /* Thème clair */
+  --bg: #f4f4f7;
+  --surface: #ffffff;
+  --surface-2: #f7f7fa;
+  --surface-3: #efeff4;
+  --surface-4: #e6e6ee;
+  --hover: rgba(15, 15, 25, 0.035);
+  --hover-strong: rgba(15, 15, 25, 0.06);
+  --border: #e6e6ee;
+  --border-strong: #d6d6e0;
+  --text: #0e0e13;
+  --text-2: #2c2c36;
+  --text-3: #4a4a57;
+  --muted: #6b6b78;
+  --faint: #9a9aa8;
+  --sidebar-bg: #0c0c10;
+  --card-radius: 1.125rem;
+  color-scheme: light;
+}
+
+html.dark {
+  --bg: #09090b;
+  --surface: #131317;
+  --surface-2: #1a1a1f;
+  --surface-3: #212128;
+  --surface-4: #2a2a33;
+  --hover: rgba(255, 255, 255, 0.04);
+  --hover-strong: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.075);
+  --border-strong: rgba(255, 255, 255, 0.13);
+  --text: #f4f4f7;
+  --text-2: #d4d4dc;
+  --text-3: #b2b2be;
+  --muted: #8d8d9a;
+  --faint: #6a6a77;
+  --sidebar-bg: #0e0e12;
+  color-scheme: dark;
 }
 
 @layer base {
@@ -36,14 +77,14 @@
   }
   body {
     font-family: var(--font-sans);
-    font-feature-settings: 'cv11', 'ss01', 'tnum';
-    background-color: var(--surface-bg);
-    color: #0f172a;
-    letter-spacing: -0.008em;
+    font-feature-settings: 'tnum';
+    background-color: var(--bg);
+    color: var(--text);
+    letter-spacing: -0.005em;
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
   table td,
   table th,
@@ -54,37 +95,94 @@
     font-family: var(--font-mono);
     letter-spacing: -0.02em;
   }
+  :focus-visible {
+    outline: 2px solid rgb(var(--brand-500));
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Champs de saisie en thème sombre */
+html.dark input:not([type='checkbox']):not([type='radio']):not([type='range']):not(.a4-sheet *),
+html.dark select:not(.a4-sheet *),
+html.dark textarea:not(.a4-sheet *) {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+html.dark ::placeholder {
+  color: var(--faint);
 }
 
 @layer components {
   .pro-card {
-    background: #ffffff;
+    background: var(--surface);
     border-radius: var(--card-radius);
-    border: 1px solid rgba(203, 213, 225, 0.75);
-    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03), 0 1px 3px 0 rgba(15, 23, 42, 0.02);
-    transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px 0 rgba(15, 15, 25, 0.03);
+    transition: border-color 160ms ease, box-shadow 200ms ease, transform 200ms ease;
   }
-  .pro-card-hover {
-    @apply hover:border-brand-500/50 hover:shadow-[0_6px_18px_-3px_rgba(5,150,105,0.08),0_2px_6px_-1px_rgba(15,23,42,0.04)] hover:-translate-y-[1px];
+  html.dark .pro-card {
+    box-shadow: none;
+  }
+  .pro-card-hover:hover {
+    border-color: rgb(var(--brand-500) / 0.45);
+    box-shadow: 0 10px 30px -12px rgb(var(--brand-500) / 0.35);
+    transform: translateY(-1px);
   }
   .pro-table-header {
-    @apply bg-slate-50/95 text-[11px] font-semibold uppercase tracking-[0.06em] text-slate-500 border-b border-slate-200/90;
+    @apply text-[11px] font-semibold uppercase tracking-[0.06em];
+    background: var(--surface-2);
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
   }
   .pro-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-3.5 py-2 text-[13px] font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-md shadow-2xs transition-all;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-[13px] font-semibold rounded-xl transition-all;
+    background: var(--text);
+    color: var(--bg);
+  }
+  .pro-btn-primary:hover {
+    opacity: 0.88;
   }
   .pro-btn-brand {
-    @apply inline-flex items-center justify-center gap-2 px-3.5 py-2 text-[13px] font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-md shadow-xs shadow-brand-600/15 transition-all;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/25 transition-all;
   }
   .pro-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-[13px] font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-md shadow-2xs transition-all;
+    @apply inline-flex items-center justify-center gap-2 px-3.5 py-2 text-[13px] font-medium rounded-xl transition-all;
+    background: var(--surface);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+  }
+  .pro-btn-secondary:hover {
+    background: var(--surface-2);
+    border-color: var(--border-strong);
   }
   .pro-sidebar-surface {
     background-color: var(--sidebar-bg);
   }
+  .cf-gradient {
+    background: var(--accent-gradient);
+  }
+  .cf-icon-tile {
+    @apply inline-flex items-center justify-center rounded-xl shrink-0;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+  }
+  .cf-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors;
+  }
 }
 
-/* Custom modern scrollbar */
+/* Arrondis plus généreux façon CentralFlow (hors documents A4) */
+.rounded-lg:not(.a4-sheet *) { border-radius: 0.75rem; }
+.rounded-xl:not(.a4-sheet *) { border-radius: 1rem; }
+.rounded-2xl:not(.a4-sheet *) { border-radius: 1.25rem; }
+
+/* Barres de défilement discrètes */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -93,21 +191,31 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--border-strong);
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--faint);
+  background-clip: content-box;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
   background-clip: content-box;
 }
 
-/* Dark sidebar scrollbar */
-.sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  background-clip: content-box;
+/* Animations utilitaires */
+@keyframes cf-slide-in {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
+@keyframes cf-fade-up {
+  from { transform: translateY(6px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.cf-slide-in { animation: cf-slide-in 220ms cubic-bezier(0.16, 1, 0.3, 1); }
+.cf-fade-up { animation: cf-fade-up 200ms ease-out; }
 
 /* ==========================================================================
    FEUILLE A4 (Devis / Factures) - 210 x 297 mm
@@ -119,14 +227,60 @@
   box-sizing: border-box;
   background: #ffffff;
   color: #1e293b;
+  font-family: 'Manrope', 'IBM Plex Sans', system-ui, sans-serif;
   font-size: 10.5px;
   line-height: 1.45;
   display: flex;
   flex-direction: column;
+  color-scheme: light;
 }
 
 .a4-sheet table {
   border-collapse: collapse;
+}
+
+/* Charte des documents Lika (skill UI/UX Pro Max : Swiss + Flat, bleu marine)
+   Poppins pour les titres, Open Sans pour le texte, chiffres tabulaires. */
+.doc-sheet {
+  position: relative;
+  font-family: 'Open Sans', 'Manrope', system-ui, sans-serif;
+  font-feature-settings: 'tnum';
+  color: #0f172a;
+}
+.font-doc-heading {
+  font-family: 'Poppins', 'Open Sans', system-ui, sans-serif;
+}
+.doc-band {
+  margin: -14mm -14mm 0 -14mm;
+  padding: 9mm 14mm 8mm 14mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6mm;
+}
+.doc-band-rule {
+  margin: 0 -14mm;
+  height: 1.2mm;
+  background: #2563eb;
+}
+.doc-foot-band {
+  margin: 4mm -14mm -12mm -14mm;
+  height: 4mm;
+}
+.a4-sheet .border-slate-300,
+.a4-sheet .border-slate-200 {
+  border-color: #e7e5f0;
+}
+.a4-sheet .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+.a4-sheet .divide-slate-300 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e7e5f0;
+}
+.a4-sheet .rounded-xs,
+.a4-sheet .rounded-sm {
+  border-radius: 2.5mm;
+}
+.a4-sheet .bg-slate-100 {
+  background-color: #f4f2fa;
 }
 
 /* Print utilities for clean quote/invoice printing */

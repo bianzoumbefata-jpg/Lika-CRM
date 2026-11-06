@@ -130,7 +130,7 @@ export function InterventionsView() {
           <button
             onClick={() => setFilterStatus('resolu')}
             className={`px-3 py-1.5 rounded-lg transition whitespace-nowrap ${
-              filterStatus === 'resolu' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+              filterStatus === 'resolu' ? 'bg-brand-600 text-white' : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             Résolues

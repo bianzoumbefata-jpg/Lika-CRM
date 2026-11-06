@@ -9,10 +9,13 @@ import {
   DocParties,
   DocItemsTable,
   TotalRow,
+  TotalsCard,
+  DocSectionTitle,
   DocFooter,
+  DOC_ACCENTS,
 } from '../common/DocumentSheet';
 
-const ACCENT = '#1e3a8a';
+const ACCENT = DOC_ACCENTS.devis;
 
 export function QuotePdfPreview({ isOpen, onClose, quote, onConvertToInvoice, onOpenSendModal, onOpenCloneModal }) {
   const { settings, customers, currencySymbol, currencyPosition } = useCrm();
@@ -77,41 +80,39 @@ export function QuotePdfPreview({ isOpen, onClose, quote, onConvertToInvoice, on
         meta={[
           { label: "Date d'émission :", value: formatDate(quote.date) },
           { label: 'Valable jusqu’au :', value: formatDate(quote.validUntil) },
-          { label: 'Statut :', value: statusLabel },
+          { label: 'Statut :', value: statusLabel, highlight: true },
         ]}
       />
 
-      <DocParties company={company} customer={customer} fallbackName={quote.customerName} recipientLabel="Adressé à" />
+      <DocParties company={company} customer={customer} fallbackName={quote.customerName} recipientLabel="Adressé à" accent={ACCENT} />
 
       <DocItemsTable items={quote.items} currencyFmt={fmt} accent={ACCENT} />
 
       {/* Notes + Totaux */}
-      <div className="avoid-break grid grid-cols-[1fr_68mm] gap-5 mt-4">
-        <div className="text-[9.5px] text-slate-600 space-y-2">
+      <div className="avoid-break grid grid-cols-[1fr_70mm] gap-5 mt-4 items-start">
+        <div className="text-[9.5px] text-[#475569] space-y-3 pt-1">
           {quote.terms && (
             <div>
-              <div className="font-semibold text-slate-800">Modalités & conditions</div>
-              <div>{quote.terms}</div>
+              <DocSectionTitle accent={ACCENT}>Modalités & conditions</DocSectionTitle>
+              <div className="leading-[1.6]">{quote.terms}</div>
             </div>
           )}
           {quote.notes && (
             <div>
-              <div className="font-semibold text-slate-800">Notes</div>
-              <div className="whitespace-pre-wrap">{quote.notes}</div>
+              <DocSectionTitle accent={ACCENT}>Notes</DocSectionTitle>
+              <div className="whitespace-pre-wrap leading-[1.6]">{quote.notes}</div>
             </div>
           )}
-          {company.quoteNotes && <div className="italic text-slate-500">{company.quoteNotes}</div>}
+          {company.quoteNotes && <div className="italic text-[#64748B]">{company.quoteNotes}</div>}
         </div>
 
-        <div className="border border-slate-300 text-[10px]">
+        <TotalsCard>
           <TotalRow label="Total brut HT" value={fmt((quote.totalHT || 0) + (quote.totalDiscount || 0))} />
-          {quote.totalDiscount > 0 && (
-            <TotalRow label="Remises" value={`- ${fmt(quote.totalDiscount)}`} className="text-emerald-700" />
-          )}
-          <TotalRow label="Net HT" value={fmt(quote.totalHT)} className="border-t border-slate-200 font-semibold" />
+          {quote.totalDiscount > 0 && <TotalRow label="Remises" value={`- ${fmt(quote.totalDiscount)}`} />}
+          <TotalRow label="Net HT" value={fmt(quote.totalHT)} className="font-semibold !text-[#0F172A]" />
           <TotalRow label="TVA 18 %" value={fmt(quote.totalVAT)} />
-          <TotalRow label="TOTAL TTC" value={fmt(quote.totalTTC)} strong accent={ACCENT} />
-        </div>
+          <TotalRow label="Total TTC" value={fmt(quote.totalTTC)} strong accent={ACCENT} />
+        </TotalsCard>
       </div>
 
       {/* QR Codes Wave & Orange Money */}
@@ -126,14 +127,14 @@ export function QuotePdfPreview({ isOpen, onClose, quote, onConvertToInvoice, on
       </div>
 
       {/* Signatures */}
-      <div className="avoid-break grid grid-cols-2 gap-5 mt-4 text-[9px]">
-        <div className="border border-slate-300 rounded-sm h-[26mm] p-2 flex flex-col justify-between">
-          <span className="font-semibold uppercase tracking-wider text-slate-500">Pour {company.name || 'la société'}</span>
-          <span className="italic text-slate-400">Signature & cachet</span>
+      <div className="avoid-break grid grid-cols-2 gap-3 mt-4 text-[9px]">
+        <div className="border border-[#E4E7EB] h-[27mm] px-3.5 py-2.5 flex flex-col justify-between">
+          <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#1E3A5F]">Pour {company.name || 'la société'}</span>
+          <span className="italic text-[#94A3B8]">Signature & cachet</span>
         </div>
-        <div className="border border-slate-300 rounded-sm h-[26mm] p-2 flex flex-col justify-between">
-          <span className="font-semibold uppercase tracking-wider text-slate-500">Bon pour accord — le client</span>
-          <span className="italic text-slate-400">Date, signature et mention « Bon pour accord »</span>
+        <div className="h-[27mm] px-3.5 py-2.5 flex flex-col justify-between border border-dashed border-[#94A3B8] bg-[#F8FAFC]">
+          <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#1E3A5F]">Bon pour accord — le client</span>
+          <span className="italic text-[#64748B]">Date, signature et mention « Bon pour accord »</span>
         </div>
       </div>
 

@@ -62,11 +62,11 @@ export function StockMovementModal({ isOpen, onClose, defaultProduct = null }) {
                 onClick={() => setFormData({ ...formData, type: 'entree', reason: 'Approvisionnement fournisseur' })}
                 className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 transition ${
                   formData.type === 'entree'
-                    ? 'bg-emerald-50 border-emerald-400 text-emerald-800 shadow-2xs'
+                    ? 'bg-brand-50 border-brand-400 text-brand-800 shadow-2xs'
                     : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                <ArrowUpRight className="w-4 h-4 text-emerald-600" />
+                <ArrowUpRight className="w-4 h-4 text-brand-600" />
                 <span>Entrée (+ Réception)</span>
               </button>
 

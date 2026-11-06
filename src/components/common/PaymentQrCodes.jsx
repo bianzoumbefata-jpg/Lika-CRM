@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
 import { Smartphone, Check, Copy, QrCode as QrIcon } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
+import qrcode from 'qrcode-generator';
+
+/** QR code généré localement (hors ligne, sans service tiers, compatible export PDF) */
+function localQrDataUrl(text) {
+  try {
+    const qr = qrcode(0, 'M');
+    qr.addData(unescape(encodeURIComponent(text)));
+    qr.make();
+    return qr.createDataURL(4, 2);
+  } catch {
+    return '';
+  }
+}
 
 export function PaymentQrCodes({
   documentType = 'facture',
@@ -31,9 +44,9 @@ export function PaymentQrCodes({
   const waveQrData = `Wave Sénégal | ${merchantName} | ${docLabel}: ${documentId} | Montant: ${amount} FCFA | Tél: ${wavePhone}`;
   const omQrData = `Orange Money | ${merchantName} | ${docLabel}: ${documentId} | Montant: ${amount} FCFA | Tél: ${omPhone}`;
 
-  // Compact size for fast loading and crisp display
-  const waveDynamicUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&margin=2&data=${encodeURIComponent(waveQrData)}`;
-  const omDynamicUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&margin=2&data=${encodeURIComponent(omQrData)}`;
+  // QR codes générés localement (aucune donnée de facture envoyée à un service externe)
+  const waveDynamicUrl = localQrDataUrl(waveQrData);
+  const omDynamicUrl = localQrDataUrl(omQrData);
 
   const handleCopyWave = (e) => {
     e?.stopPropagation();

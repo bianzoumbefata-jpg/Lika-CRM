@@ -8,6 +8,8 @@ dist/
 .env
 .env.*
 data/cloud_config.json
+data/ai_config.json
+data/mail_config.json
 *.tmp
 
 # Logs & OS files

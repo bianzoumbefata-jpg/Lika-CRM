@@ -224,7 +224,7 @@ export function CustomerFormModal({ isOpen, onClose, customerToEdit, defaultType
                     onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                     className="w-full text-sm font-semibold border border-slate-200 rounded-xl pl-8 pr-3 py-2 focus:outline-none"
                   />
-                  <Smartphone className="w-4 h-4 text-emerald-600 absolute left-2.5 top-2.5" />
+                  <Smartphone className="w-4 h-4 text-brand-600 absolute left-2.5 top-2.5" />
                 </div>
               </div>
 
